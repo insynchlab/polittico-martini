@@ -1,0 +1,203 @@
+/* Layout: schermate intro / experience, mobile-first */
+.app {
+  min-height: 100dvh;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 5vw, 2rem) 1rem;
+}
+
+.app__content {
+  width: 100%;
+  max-width: 22.5rem;
+}
+
+.app__content--column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+}
+
+.app__title {
+  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 0.9rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.app__lede {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.intro__list {
+  margin: 0 0 1.5rem;
+  padding: 0.85rem 1rem 0.85rem 1.75rem;
+  text-align: left;
+  list-style: disc;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.intro__list li {
+  margin: 0.15rem 0;
+}
+
+.app__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 20rem;
+  margin-inline: auto;
+}
+
+/* Pulsante primario: ben visibile su sfondo scuro */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+
+.btn--primary {
+  background: linear-gradient(180deg, #d4b17a 0%, #b8945c 100%);
+  color: var(--accent);
+  border-color: #7d6644;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn--primary:active {
+  transform: scale(0.99);
+  filter: brightness(0.97);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn--secondary:hover {
+  background: var(--bg-elevated);
+  border-color: #5c5752;
+}
+
+.btn--secondary:active {
+  transform: scale(0.99);
+}
+
+.intro__note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+  max-width: 16rem;
+}
+
+/* Experience: portrait — invito a ruotare */
+.app--experience--portrait {
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+.experience-portrait__inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 0;
+  text-align: center;
+}
+
+.experience-portrait__message {
+  margin: 0;
+  max-width: 16rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.experience-portrait__icon {
+  display: block;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--accent-bright);
+  user-select: none;
+}
+
+.app__actions--footer {
+  margin-top: auto;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* Experience: landscape — stage vuoto per il polittico */
+.app--experience--landscape {
+  padding: 1rem 1.25rem;
+}
+
+.app__content--experience-wide {
+  max-width: min(100%, 36rem);
+  width: 100%;
+  flex: 0 1 auto;
+}
+
+.app__lede--center {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.polittico-stage {
+  width: 100%;
+  min-height: 10rem;
+  margin: 0 0 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg-elevated);
+}
+
+@media (min-width: 480px) {
+  .app__lede {
+    text-align: center;
+  }
+
+  .intro__list {
+    text-align: center;
+    list-style-position: inside;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width: 600px) {
+  .app {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .app__content {
+    max-width: 26rem;
+  }
+}
