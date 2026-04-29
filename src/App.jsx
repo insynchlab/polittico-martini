@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { puzzlePieces } from './data/panels'
 import './App.css'
 
@@ -23,8 +23,27 @@ function getInitialPositions() {
   return Object.fromEntries(puzzlePieces.map((piece) => [piece.id, piece.currentIndex]))
 }
 
+function getViewportSize() {
+  const width = Math.max(
+    window.visualViewport?.width ?? 0,
+    window.innerWidth,
+    document.documentElement.clientWidth,
+  )
+  const height = Math.max(
+    window.visualViewport?.height ?? 0,
+    window.innerHeight,
+    document.documentElement.clientHeight,
+  )
+
+  return { width, height }
+}
+
 function isViewportPortrait() {
-  return window.innerWidth < window.innerHeight
+  if (window.matchMedia?.('(orientation: portrait)').matches) return true
+  if (window.matchMedia?.('(orientation: landscape)').matches) return false
+
+  const { width, height } = getViewportSize()
+  return width < height
 }
 
 function getSlotClass(piece, slotIndex) {
@@ -160,16 +179,32 @@ export default function App() {
     () => typeof window !== 'undefined' && isViewportPortrait(),
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (screen !== 'experience') return
 
     const update = () => setIsPortrait(isViewportPortrait())
+    const updateAfterViewportSettles = () => {
+      update()
+      requestAnimationFrame(update)
+      window.setTimeout(update, 120)
+      window.setTimeout(update, 360)
+    }
+    const portraitQuery = window.matchMedia?.('(orientation: portrait)')
+    const landscapeQuery = window.matchMedia?.('(orientation: landscape)')
+
     update()
     window.addEventListener('resize', update)
-    window.addEventListener('orientationchange', update)
+    window.addEventListener('orientationchange', updateAfterViewportSettles)
+    window.visualViewport?.addEventListener('resize', update)
+    portraitQuery?.addEventListener('change', update)
+    landscapeQuery?.addEventListener('change', update)
+
     return () => {
       window.removeEventListener('resize', update)
-      window.removeEventListener('orientationchange', update)
+      window.removeEventListener('orientationchange', updateAfterViewportSettles)
+      window.visualViewport?.removeEventListener('resize', update)
+      portraitQuery?.removeEventListener('change', update)
+      landscapeQuery?.removeEventListener('change', update)
     }
   }, [screen])
 
