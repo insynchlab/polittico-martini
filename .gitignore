@@ -13,6 +13,7 @@ dist
 dist-ssr
 *.local
 .netlify
+/audio/
 
 # Editor
 .DS_Store

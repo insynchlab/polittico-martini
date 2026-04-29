@@ -13,6 +13,8 @@ const puzzle12 = new URL('../../puzzle_piece/puzzle12.png', import.meta.url).hre
 const puzzle13 = new URL('../../puzzle_piece/puzzle13.png', import.meta.url).href
 const puzzle14 = new URL('../../puzzle_piece/puzzle14.png', import.meta.url).href
 
+const predellaFeedbackText = 'Questa fascia inferiore è chiamata predella. Qui sono raffigurati santi e figure che accompagnano la scena principale e completano il racconto dell’opera.'
+
 /**
  * Dati definitivi di base per i 14 pezzi del polittico.
  * Le dimensioni sono quelle reali dei PNG presenti in /puzzle_piece.
@@ -29,8 +31,9 @@ export const puzzlePieces = [
     correctIndex: 0,
     currentIndex: 3,
     puzzle: { src: puzzle1, width: 392, height: 1342 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/1_mariamaddalena.mp3',
+    feedbackText: 'Questa figura è Maria Maddalena. Il vaso che tiene tra le mani è il suo simbolo: contiene gli unguenti con cui, secondo la tradizione, onorò il corpo di Cristo.',
+    description: 'Questa figura è Maria Maddalena. Il vaso che tiene tra le mani è il suo simbolo: contiene gli unguenti con cui, secondo la tradizione, onorò il corpo di Cristo.',
   },
   {
     id: 'piece_02',
@@ -42,8 +45,9 @@ export const puzzlePieces = [
     correctIndex: 1,
     currentIndex: 0,
     puzzle: { src: puzzle2, width: 396, height: 1332 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/2_sandomenico.mp3',
+    feedbackText: 'Questa figura è San Domenico, fondatore dell’ordine domenicano. Il giglio e il libro richiamano purezza e predicazione.',
+    description: 'Questa figura è San Domenico, fondatore dell’ordine domenicano. Il giglio e il libro richiamano purezza e predicazione.',
   },
   {
     id: 'piece_03',
@@ -55,8 +59,9 @@ export const puzzlePieces = [
     correctIndex: 2,
     currentIndex: 4,
     puzzle: { src: puzzle3, width: 405, height: 1346 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/3_sangiovanni_evangelista.mp3',
+    feedbackText: 'Questa figura è San Giovanni Evangelista, riconoscibile dal volto giovane e dal libro del Vangelo.',
+    description: 'Questa figura è San Giovanni Evangelista, riconoscibile dal volto giovane e dal libro del Vangelo.',
   },
   {
     id: 'piece_04',
@@ -68,8 +73,9 @@ export const puzzlePieces = [
     correctIndex: 3,
     currentIndex: 6,
     puzzle: { src: puzzle4, width: 560, height: 1660 },
-    audio: null,
-    description: 'Pannello centrale piu grande, fulcro visivo della struttura.',
+    audio: '/audio/4_madonna.mp3',
+    feedbackText: 'Questo è il cuore del polittico: la Madonna con il Bambino, centro visivo e simbolico dell’opera.',
+    description: 'Questo è il cuore del polittico: la Madonna con il Bambino, centro visivo e simbolico dell’opera.',
   },
   {
     id: 'piece_05',
@@ -81,8 +87,9 @@ export const puzzlePieces = [
     correctIndex: 4,
     currentIndex: 1,
     puzzle: { src: puzzle5, width: 403, height: 1340 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/5_sangiovanni_battista.mp3',
+    feedbackText: 'Questa figura è San Giovanni Battista, asceta e profeta che annuncia la venuta di Cristo.',
+    description: 'Questa figura è San Giovanni Battista, asceta e profeta che annuncia la venuta di Cristo.',
   },
   {
     id: 'piece_06',
@@ -94,8 +101,9 @@ export const puzzlePieces = [
     correctIndex: 5,
     currentIndex: 5,
     puzzle: { src: puzzle6, width: 396, height: 1334 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/6_sanpietromartire.mp3',
+    feedbackText: 'Questa figura è San Pietro Martire, domenicano, simbolo di fede e martirio.',
+    description: 'Questa figura è San Pietro Martire, domenicano, simbolo di fede e martirio.',
   },
   {
     id: 'piece_07',
@@ -107,8 +115,9 @@ export const puzzlePieces = [
     correctIndex: 6,
     currentIndex: 2,
     puzzle: { src: puzzle7, width: 393, height: 1327 },
-    audio: null,
-    description: 'Elemento del registro superiore, testo da scrivere e validare.',
+    audio: '/audio/7_santacaterina.mp3',
+    feedbackText: 'Questa figura è Santa Caterina d’Alessandria, principessa, sapiente e martire.',
+    description: 'Questa figura è Santa Caterina d’Alessandria, principessa, sapiente e martire.',
   },
   {
     id: 'piece_08',
@@ -120,8 +129,9 @@ export const puzzlePieces = [
     correctIndex: 0,
     currentIndex: 2,
     puzzle: { src: puzzle8, width: 412, height: 333 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_09',
@@ -133,8 +143,9 @@ export const puzzlePieces = [
     correctIndex: 1,
     currentIndex: 5,
     puzzle: { src: puzzle9, width: 417, height: 325 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_10',
@@ -146,8 +157,9 @@ export const puzzlePieces = [
     correctIndex: 2,
     currentIndex: 0,
     puzzle: { src: puzzle10, width: 405, height: 337 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_11',
@@ -159,8 +171,9 @@ export const puzzlePieces = [
     correctIndex: 3,
     currentIndex: 6,
     puzzle: { src: puzzle11, width: 554, height: 327 },
-    audio: null,
-    description: 'Elemento centrale della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_12',
@@ -172,8 +185,9 @@ export const puzzlePieces = [
     correctIndex: 4,
     currentIndex: 1,
     puzzle: { src: puzzle12, width: 413, height: 327 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_13',
@@ -185,8 +199,9 @@ export const puzzlePieces = [
     correctIndex: 5,
     currentIndex: 4,
     puzzle: { src: puzzle13, width: 396, height: 323 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
   {
     id: 'piece_14',
@@ -198,8 +213,9 @@ export const puzzlePieces = [
     correctIndex: 6,
     currentIndex: 3,
     puzzle: { src: puzzle14, width: 409, height: 333 },
-    audio: null,
-    description: 'Elemento della fascia inferiore, testo da scrivere e validare.',
+    audio: '/audio/predella.mp3',
+    feedbackText: predellaFeedbackText,
+    description: predellaFeedbackText,
   },
 ]
 

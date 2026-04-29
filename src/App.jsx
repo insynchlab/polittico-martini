@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { puzzlePieces } from './data/panels'
 import './App.css'
 
@@ -18,6 +18,8 @@ const TARGET_SEQUENCE = [
   'piece_10',
   'piece_12',
 ]
+
+const FEEDBACK_FALLBACK_MS = 1800
 
 function getInitialPositions() {
   return Object.fromEntries(puzzlePieces.map((piece) => [piece.id, piece.currentIndex]))
@@ -80,11 +82,79 @@ function PolitticoGame({ onBack }) {
   const [lockedPieces, setLockedPieces] = useState([])
   const [targetIndex, setTargetIndex] = useState(0)
   const [statusMessage, setStatusMessage] = useState('Tocca il pezzo richiesto per portarlo nello slot evidenziato.')
+  const [feedback, setFeedback] = useState(null)
+  const audioRef = useRef(null)
+  const feedbackTimeoutRef = useRef(null)
+  const predellaAudioPlayedRef = useRef(false)
   const activeTargetId = TARGET_SEQUENCE[targetIndex]
   const activeTarget = puzzlePieces.find((piece) => piece.id === activeTargetId)
   const isComplete = !activeTarget
+  const feedbackActive = feedback !== null
+
+  const clearFeedbackTimer = () => {
+    if (!feedbackTimeoutRef.current) return
+    window.clearTimeout(feedbackTimeoutRef.current)
+    feedbackTimeoutRef.current = null
+  }
+
+  const stopCurrentAudio = () => {
+    if (!audioRef.current) return
+    audioRef.current.onended = null
+    audioRef.current.onerror = null
+    audioRef.current.pause()
+    audioRef.current.currentTime = 0
+    audioRef.current = null
+  }
+
+  const finishFeedback = () => {
+    clearFeedbackTimer()
+    stopCurrentAudio()
+    setFeedback(null)
+  }
+
+  const startFeedback = (piece) => {
+    clearFeedbackTimer()
+    stopCurrentAudio()
+
+    const isPredellaFeedback = piece.zone === 'predella'
+    const shouldPlayAudio = !isPredellaFeedback || !predellaAudioPlayedRef.current
+
+    if (isPredellaFeedback) {
+      predellaAudioPlayedRef.current = true
+    }
+
+    setFeedback({
+      pieceId: piece.id,
+      text: piece.feedbackText || piece.description,
+      isPredella: isPredellaFeedback,
+    })
+
+    if (!shouldPlayAudio || !piece.audio) {
+      feedbackTimeoutRef.current = window.setTimeout(finishFeedback, FEEDBACK_FALLBACK_MS)
+      return
+    }
+
+    const audio = new Audio(piece.audio)
+    audioRef.current = audio
+    audio.onended = finishFeedback
+    audio.onerror = finishFeedback
+
+    const playPromise = audio.play()
+    if (playPromise?.catch) {
+      playPromise.catch(() => {
+        feedbackTimeoutRef.current = window.setTimeout(finishFeedback, FEEDBACK_FALLBACK_MS)
+      })
+    }
+  }
+
+  useEffect(() => () => {
+    clearFeedbackTimer()
+    stopCurrentAudio()
+  }, [])
 
   const handlePiecePress = (piece) => {
+    if (feedbackActive) return
+
     if (isComplete) {
       setStatusMessage('Opera ricomposta: tutti i pezzi sono nella posizione corretta.')
       return
@@ -125,13 +195,14 @@ function PolitticoGame({ onBack }) {
           ? `${piece.title} collocato correttamente. Ora cerca ${nextTarget.title}.`
           : 'Opera ricomposta: tutti i pezzi sono nella posizione corretta.',
       )
+      startFeedback(piece)
     } else {
       setStatusMessage(`Questo non e il pezzo richiesto. Continua a cercare ${activeTarget.title}.`)
     }
   }
 
   return (
-    <div className="game-panel">
+    <div className={`game-panel${feedbackActive ? ' game-panel--feedback-active' : ''}`}>
       <div className={`game-hud${isComplete ? ' game-hud--success' : ''}`} aria-live="polite">
         <div className="game-hud__body">
           <p className="game-hud__eyebrow">Ricostruisci il polittico</p>
@@ -149,43 +220,63 @@ function PolitticoGame({ onBack }) {
           Torna all'introduzione
         </button>
       </div>
-      <div className="polittico-stage" id="polittico-stage" aria-label="Area polittico">
+      <div className="game-stage-column">
         <div
-          className="polyptych-layout"
-          aria-label="Polittico con quattordici pezzi puzzle"
+          className={`polittico-stage${feedback?.isPredella ? ' polittico-stage--predella-feedback' : ''}`}
+          id="polittico-stage"
+          aria-label="Area polittico"
+          aria-busy={feedbackActive}
         >
-          {!isComplete && (
-            <div
-              className={`polyptych-piece polyptych-piece--target-frame polyptych-piece--${activeTarget.row} ${getSlotClass(activeTarget, activeTarget.correctIndex)}`}
-              aria-hidden="true"
-            />
-          )}
-          {puzzlePieces.map((piece) => {
-            const solved = lockedPieces.includes(piece.id)
-            const target = !isComplete && piece.id === activeTarget.id
-            const slotPiece = getSlotPiece(piece, positions[piece.id])
-            const slotVisualIndex = slotPiece?.index ?? piece.index
-            return (
-              <button
-                key={`puzzle-${piece.id}`}
-                type="button"
-                className={`polyptych-piece polyptych-piece--puzzle-button polyptych-piece--${piece.row} ${getSlotClass(piece, positions[piece.id])}${solved ? ' polyptych-piece--locked' : ''}${target ? ' polyptych-piece--target' : ''}`}
-                onClick={() => handlePiecePress(piece)}
-                disabled={solved}
-                aria-label={`${piece.title}${target ? ', target attivo' : ''}`}
-              >
-                <img
-                  className={`polyptych-piece__img polyptych-piece__img--puzzle polyptych-piece__img--slot-${slotVisualIndex}`}
-                  src={piece.puzzle.src}
-                  alt=""
-                  width={piece.puzzle.width}
-                  height={piece.puzzle.height}
-                  decoding="async"
-                />
-              </button>
-            )
-          })}
+          <div
+            className="polyptych-layout"
+            aria-label="Polittico con quattordici pezzi puzzle"
+          >
+            {!isComplete && !feedbackActive && (
+              <div
+                className={`polyptych-piece polyptych-piece--target-frame polyptych-piece--${activeTarget.row} ${getSlotClass(activeTarget, activeTarget.correctIndex)}`}
+                aria-hidden="true"
+              />
+            )}
+            {puzzlePieces.map((piece) => {
+              const solved = lockedPieces.includes(piece.id)
+              const target = !isComplete && piece.id === activeTarget.id
+              const feedbackPiece = feedback?.pieceId === piece.id
+              const slotPiece = getSlotPiece(piece, positions[piece.id])
+              const slotVisualIndex = slotPiece?.index ?? piece.index
+              return (
+                <button
+                  key={`puzzle-${piece.id}`}
+                  type="button"
+                  className={`polyptych-piece polyptych-piece--puzzle-button polyptych-piece--${piece.row} ${getSlotClass(piece, positions[piece.id])}${solved ? ' polyptych-piece--locked' : ''}${target ? ' polyptych-piece--target' : ''}${feedbackPiece ? ' polyptych-piece--feedback' : ''}`}
+                  onClick={() => handlePiecePress(piece)}
+                  disabled={solved || feedbackActive}
+                  aria-label={`${piece.title}${target ? ', target attivo' : ''}`}
+                >
+                  <img
+                    className={`polyptych-piece__img polyptych-piece__img--puzzle polyptych-piece__img--slot-${slotVisualIndex}`}
+                    src={piece.puzzle.src}
+                    alt=""
+                    width={piece.puzzle.width}
+                    height={piece.puzzle.height}
+                    decoding="async"
+                  />
+                </button>
+              )
+            })}
+          </div>
         </div>
+        {feedback && (
+          <div className="piece-feedback" role="status" aria-live="assertive">
+            <p className="piece-feedback__text">{feedback.text}</p>
+            <button
+              type="button"
+              className="piece-feedback__skip"
+              onClick={finishFeedback}
+            >
+              Salta / Continua
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

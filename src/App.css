@@ -413,6 +413,18 @@ body {
   padding: clamp(0.55rem, 1.45dvw, 0.85rem) clamp(0.65rem, 1.6dvh, 1rem);
 }
 
+.game-stage-column {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(0.55rem, 1.4vh, 0.9rem);
+}
+
 /* polittico-stage: canvas proporzionale senza scroll verticale */
 .polittico-stage {
   position: relative;
@@ -433,6 +445,10 @@ body {
   overflow: hidden;
   box-sizing: border-box;
   transition: border-color var(--transition-soft), background var(--transition-soft);
+}
+
+.game-panel--feedback-active .polittico-stage {
+  max-height: calc(100% - clamp(4.8rem, 18vh, 8rem));
 }
 
 .game-hud {
@@ -544,6 +560,20 @@ body {
   line-height: 0;
 }
 
+.polittico-stage--predella-feedback .polyptych-layout::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 18;
+  height: 22%;
+  border-top: 1px solid color-mix(in srgb, #c2a35a 55%, transparent);
+  background: linear-gradient(180deg, transparent, rgba(194, 163, 90, 0.12));
+  box-shadow: 0 0 1.1rem rgba(194, 163, 90, 0.42) inset, 0 0 0.75rem rgba(194, 163, 90, 0.2);
+  pointer-events: none;
+}
+
 .polyptych-piece {
   position: absolute;
   display: block;
@@ -569,6 +599,10 @@ body {
   cursor: pointer;
   appearance: none;
   touch-action: manipulation;
+}
+
+.game-panel--feedback-active .polyptych-piece--puzzle-button {
+  cursor: wait;
 }
 
 .polyptych-piece--puzzle-button:hover {
@@ -629,6 +663,66 @@ body {
 
 .polyptych-piece--locked .polyptych-piece__img--puzzle {
   filter: none;
+}
+
+.polyptych-piece--feedback {
+  z-index: 22;
+  filter: drop-shadow(0 0 0.75rem rgba(194, 163, 90, 0.92)) brightness(1.08);
+}
+
+.polyptych-piece--feedback .polyptych-piece__img--puzzle {
+  filter: none;
+}
+
+.piece-feedback {
+  width: min(100%, 48rem);
+  margin: 0 auto;
+  padding: clamp(0.65rem, 1.6vh, 0.95rem) clamp(0.8rem, 1.8vw, 1.15rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.65rem, 1.5vw, 1rem);
+  border: 1px solid color-mix(in srgb, #c2a35a 34%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, #1a1a1a 84%, #0f0e0d);
+  box-shadow: 0 0.6rem 1.4rem rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+}
+
+.piece-feedback__text {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(0.86rem, 1.55vw, 1rem);
+  line-height: 1.45;
+  text-align: left;
+}
+
+.piece-feedback__skip {
+  padding: 0.62rem 0.82rem;
+  border: 1px solid color-mix(in srgb, #c2a35a 70%, transparent);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-size: clamp(0.72rem, 1.4vw, 0.86rem);
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.piece-feedback__skip:hover {
+  background: color-mix(in srgb, #c2a35a 12%, transparent);
+}
+
+@media (max-width: 46rem) {
+  .piece-feedback {
+    grid-template-columns: 1fr;
+  }
+
+  .piece-feedback__skip {
+    width: 100%;
+  }
 }
 
 /* Compensazioni leggere per far occupare al puzzle lo slot corrente */
