@@ -393,24 +393,24 @@ body {
   margin: 0 auto;
   display: grid;
   grid-template-columns:
-    minmax(clamp(10rem, 24vw, 20rem), 1fr)
-    minmax(0, min(76vw, calc((100dvh - clamp(0.6rem, 1.8vw, 1.2rem)) * 2996 / 2011)));
+    minmax(clamp(13rem, 27vw, 24rem), 0.92fr)
+    minmax(0, min(72vw, calc((100dvh - clamp(0.6rem, 1.8vw, 1.2rem)) * 2996 / 2011)));
   align-items: center;
-  gap: clamp(0.45rem, 1.35vw, 1rem);
+  gap: clamp(0.7rem, 1.7vw, 1.35rem);
 }
 
 .app--experience--forced-landscape .game-panel {
   width: calc(100dvh - clamp(0.6rem, 1.8dvh, 1.2rem));
   height: calc(100dvw - clamp(0.6rem, 1.8dvw, 1.2rem));
   grid-template-columns:
-    minmax(clamp(8rem, 22dvh, 16rem), 0.8fr)
-    minmax(0, min(74dvh, calc((100dvw - clamp(0.6rem, 1.8dvw, 1.2rem)) * 2996 / 2011)));
+    minmax(clamp(10rem, 25dvh, 18rem), 0.86fr)
+    minmax(0, min(70dvh, calc((100dvw - clamp(0.6rem, 1.8dvw, 1.2rem)) * 2996 / 2011)));
   gap: clamp(0.35rem, 1.2dvh, 0.75rem);
 }
 
 .app--experience--forced-landscape .game-hud {
-  width: min(100%, 17rem);
-  padding: clamp(0.45rem, 1.3dvw, 0.75rem) clamp(0.55rem, 1.4dvh, 0.85rem);
+  width: min(100%, 18.5rem);
+  padding: clamp(0.55rem, 1.45dvw, 0.85rem) clamp(0.65rem, 1.6dvh, 1rem);
 }
 
 /* polittico-stage: canvas proporzionale senza scroll verticale */
@@ -441,12 +441,12 @@ body {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: clamp(0.52rem, 1.8vh, 0.8rem);
-  width: min(100%, 21rem);
+  gap: clamp(0.65rem, 2vh, 1rem);
+  width: min(100%, 24rem);
   max-width: 100%;
   height: auto;
   max-height: 100%;
-  padding: clamp(0.55rem, 1.6vh, 0.95rem) clamp(0.65rem, 1.6vw, 1rem);
+  padding: clamp(0.75rem, 1.9vh, 1.2rem) clamp(0.85rem, 1.9vw, 1.25rem);
   border-left: 1px solid color-mix(in srgb, #c2a35a 56%, transparent);
   background: linear-gradient(90deg, color-mix(in srgb, #1a1a1a 56%, transparent), transparent 92%);
   container-type: inline-size;
@@ -456,7 +456,7 @@ body {
 .game-hud__body {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.3rem, 1.2vh, 0.5rem);
+  gap: clamp(0.4rem, 1.35vh, 0.7rem);
 }
 
 .game-hud__target,
@@ -465,33 +465,35 @@ body {
 .game-hud__progress {
   margin: 0;
   font-family: var(--font-sans);
-  line-height: 1.32;
+  line-height: 1.45;
   text-align: left;
 }
 
 .game-hud__eyebrow {
   color: var(--text-muted);
-  font-size: clamp(0.56rem, 3.4cqi, 0.72rem);
+  font-size: clamp(0.68rem, 3.8cqi, 0.86rem);
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
 .game-hud__target {
   color: var(--gold);
-  font-size: clamp(0.82rem, 5.3cqi, 1.12rem);
+  font-size: clamp(1.05rem, 6.2cqi, 1.45rem);
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .game-hud__status {
   color: var(--text-muted);
-  max-width: 20ch;
-  font-size: clamp(0.68rem, 3.8cqi, 0.88rem);
+  max-width: 28ch;
+  font-size: clamp(0.9rem, 4.2cqi, 1.08rem);
 }
 
 .game-hud__progress {
   margin-top: clamp(0.04rem, 0.5vh, 0.15rem);
   color: color-mix(in srgb, #c2a35a 72%, #e8e2d3);
-  font-size: clamp(0.58rem, 3.4cqi, 0.76rem);
+  font-size: clamp(0.78rem, 3.7cqi, 0.94rem);
+  font-weight: 600;
 }
 
 .game-hud__back {
@@ -503,9 +505,9 @@ body {
   background: transparent;
   color: color-mix(in srgb, #c2a35a 78%, #e8e2d3);
   font-family: var(--font-sans);
-  font-size: clamp(0.56rem, 3.3cqi, 0.72rem);
+  font-size: clamp(0.72rem, 3.5cqi, 0.88rem);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: 0.04em;
   text-align: left;
   text-transform: uppercase;
