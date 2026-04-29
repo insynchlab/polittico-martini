@@ -543,6 +543,10 @@ body {
   color: var(--gold);
 }
 
+.game-hud--feedback {
+  justify-content: center;
+}
+
 /* Wrapper interno: rapporto e colonne derivati dai PNG originali */
 .polyptych-layout {
   aspect-ratio: 2996 / 2011;
@@ -681,7 +685,7 @@ body {
 
 .piece-feedback {
   width: 100%;
-  margin: clamp(0.2rem, 0.9vh, 0.45rem) 0 0;
+  margin: 0;
   padding: clamp(0.7rem, 1.55vh, 1rem) clamp(0.75rem, 1.45vw, 1rem);
   display: flex;
   flex-direction: column;

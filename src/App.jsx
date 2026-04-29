@@ -203,16 +203,8 @@ function PolitticoGame({ onBack }) {
 
   return (
     <div className={`game-panel${feedbackActive ? ' game-panel--feedback-active' : ''}`}>
-      <div className={`game-hud${isComplete ? ' game-hud--success' : ''}`} aria-live="polite">
-        <div className="game-hud__body">
-          <p className="game-hud__eyebrow">Ricostruisci il polittico</p>
-          <p className="game-hud__target">
-            {isComplete ? 'Completato' : 'Trova:'} <strong>{isComplete ? 'Polittico ricomposto' : activeTarget.title}</strong>
-          </p>
-          <p className="game-hud__status">{statusMessage}</p>
-          <p className="game-hud__progress">{lockedPieces.length} / {puzzlePieces.length} pezzi corretti</p>
-        </div>
-        {feedback && (
+      <div className={`game-hud${isComplete ? ' game-hud--success' : ''}${feedback ? ' game-hud--feedback' : ''}`} aria-live="polite">
+        {feedback ? (
           <div className="piece-feedback" role="status" aria-live="assertive">
             <p className="piece-feedback__text">{feedback.text}</p>
             <button
@@ -223,14 +215,25 @@ function PolitticoGame({ onBack }) {
               Salta / Continua
             </button>
           </div>
+        ) : (
+          <>
+            <div className="game-hud__body">
+              <p className="game-hud__eyebrow">Ricostruisci il polittico</p>
+              <p className="game-hud__target">
+                {isComplete ? 'Completato' : 'Trova:'} <strong>{isComplete ? 'Polittico ricomposto' : activeTarget.title}</strong>
+              </p>
+              <p className="game-hud__status">{statusMessage}</p>
+              <p className="game-hud__progress">{lockedPieces.length} / {puzzlePieces.length} pezzi corretti</p>
+            </div>
+            <button
+              type="button"
+              className="game-hud__back"
+              onClick={onBack}
+            >
+              Torna all'introduzione
+            </button>
+          </>
         )}
-        <button
-          type="button"
-          className="game-hud__back"
-          onClick={onBack}
-        >
-          Torna all'introduzione
-        </button>
       </div>
       <div className="game-stage-column">
         <div
