@@ -98,6 +98,10 @@ File di lavoro per memoria condivisa: obiettivi, vincoli e passi di sviluppo. Ag
 
 - Documento originale: `Documento Tecnico Sviluppo - Polittico Martini.docx` (cartella progetto / SAN MATTEO).
 - Screenshot / prima pagina del documento tecnico: workspace `assets/image-28f62f7b-252d-4fdc-a8c4-f31618cd9a5d.png` (o copia sotto `PROGETTO CURSOR MARTINI` se spostata).
+- Asset definitivi attuali:
+  - `place_holder/place_holder1.png` ... `place_holder14.png`
+  - `puzzle_piece/puzzle1.png` ... `puzzle14.png`
+- La struttura dati base dei 14 pezzi è stata consolidata in `src/data/panels.js`, con dimensioni reali misurate dei placeholder e dei puzzle piece.
 
 ---
 
@@ -109,4 +113,4 @@ File di lavoro per memoria condivisa: obiettivi, vincoli e passi di sviluppo. Ag
 
 ---
 
-*Ultimo aggiornamento: 25 aprile 2026 — allineato a obiettivi documento e conversazione di specifica.*
+*Ultimo aggiornamento: 26 aprile 2026 — stage statico con 14 placeholder stabilizzato e dati dei pezzi estratti in `src/data/panels.js`.*
