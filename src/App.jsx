@@ -37,23 +37,31 @@ function getViewportSize() {
   return { width, height }
 }
 
+function supportsForcedLandscapeFallback() {
+  const iOSPlatform = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
+  const iPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+
+  return iOSPlatform || iPadOSDesktopMode
+}
+
 function isViewportPortrait() {
-  const orientationAngle = window.screen?.orientation?.angle ?? window.orientation
-  if (Math.abs(Number(orientationAngle)) === 90) return false
-  if (Math.abs(Number(orientationAngle)) === 0 || Math.abs(Number(orientationAngle)) === 180) return true
+  const canUseIOSOrientationAngle = (
+    typeof navigator !== 'undefined'
+    && supportsForcedLandscapeFallback()
+    && typeof window.orientation !== 'undefined'
+  )
+
+  if (canUseIOSOrientationAngle) {
+    const orientationAngle = window.orientation
+    if (Math.abs(Number(orientationAngle)) === 90) return false
+    if (Math.abs(Number(orientationAngle)) === 0 || Math.abs(Number(orientationAngle)) === 180) return true
+  }
 
   if (window.matchMedia?.('(orientation: portrait)').matches) return true
   if (window.matchMedia?.('(orientation: landscape)').matches) return false
 
   const { width, height } = getViewportSize()
   return width < height
-}
-
-function supportsForcedLandscapeFallback() {
-  const iOSPlatform = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
-  const iPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
-
-  return iOSPlatform || iPadOSDesktopMode
 }
 
 function getSlotClass(piece, slotIndex) {
