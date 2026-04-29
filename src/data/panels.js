@@ -22,7 +22,7 @@ export const puzzlePieces = [
   {
     id: 'piece_01',
     index: 1,
-    title: 'Pezzo 1',
+    title: 'Santa Maria Maddalena',
     zone: 'upper',
     row: 'main',
     column: 1,
@@ -35,7 +35,7 @@ export const puzzlePieces = [
   {
     id: 'piece_02',
     index: 2,
-    title: 'Pezzo 2',
+    title: 'San Domenico',
     zone: 'upper',
     row: 'main',
     column: 2,
@@ -48,7 +48,7 @@ export const puzzlePieces = [
   {
     id: 'piece_03',
     index: 3,
-    title: 'Pezzo 3',
+    title: 'San Giovanni Evangelista',
     zone: 'upper',
     row: 'main',
     column: 3,
@@ -61,7 +61,7 @@ export const puzzlePieces = [
   {
     id: 'piece_04',
     index: 4,
-    title: 'Pezzo 4',
+    title: 'Madonna col Bambino',
     zone: 'upper',
     row: 'main',
     column: 4,
@@ -74,7 +74,7 @@ export const puzzlePieces = [
   {
     id: 'piece_05',
     index: 5,
-    title: 'Pezzo 5',
+    title: 'San Giovanni Battista',
     zone: 'upper',
     row: 'main',
     column: 5,
@@ -87,7 +87,7 @@ export const puzzlePieces = [
   {
     id: 'piece_06',
     index: 6,
-    title: 'Pezzo 6',
+    title: 'San Pietro Martire',
     zone: 'upper',
     row: 'main',
     column: 6,
@@ -100,7 +100,7 @@ export const puzzlePieces = [
   {
     id: 'piece_07',
     index: 7,
-    title: 'Pezzo 7',
+    title: "Santa Caterina d'Alessandria",
     zone: 'upper',
     row: 'main',
     column: 7,
@@ -113,7 +113,7 @@ export const puzzlePieces = [
   {
     id: 'piece_08',
     index: 8,
-    title: 'Pezzo 8',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 1,
@@ -126,7 +126,7 @@ export const puzzlePieces = [
   {
     id: 'piece_09',
     index: 9,
-    title: 'Pezzo 9',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 2,
@@ -139,7 +139,7 @@ export const puzzlePieces = [
   {
     id: 'piece_10',
     index: 10,
-    title: 'Pezzo 10',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 3,
@@ -152,7 +152,7 @@ export const puzzlePieces = [
   {
     id: 'piece_11',
     index: 11,
-    title: 'Pezzo 11',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 4,
@@ -165,7 +165,7 @@ export const puzzlePieces = [
   {
     id: 'piece_12',
     index: 12,
-    title: 'Pezzo 12',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 5,
@@ -178,7 +178,7 @@ export const puzzlePieces = [
   {
     id: 'piece_13',
     index: 13,
-    title: 'Pezzo 13',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 6,
@@ -191,7 +191,7 @@ export const puzzlePieces = [
   {
     id: 'piece_14',
     index: 14,
-    title: 'Pezzo 14',
+    title: 'Predella',
     zone: 'predella',
     row: 'predella',
     column: 7,
