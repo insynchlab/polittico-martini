@@ -447,10 +447,6 @@ body {
   transition: border-color var(--transition-soft), background var(--transition-soft);
 }
 
-.game-panel--feedback-active .polittico-stage {
-  max-height: calc(100% - clamp(4.8rem, 18vh, 8rem));
-}
-
 .game-hud {
   position: static;
   display: flex;
@@ -558,6 +554,15 @@ body {
   position: relative;
   overflow: hidden;
   line-height: 0;
+}
+
+.game-panel--feedback-active .polyptych-layout::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  background: rgba(15, 14, 13, 0.34);
+  pointer-events: none;
 }
 
 .polittico-stage--predella-feedback .polyptych-layout::after {
@@ -675,13 +680,13 @@ body {
 }
 
 .piece-feedback {
-  width: min(100%, 48rem);
-  margin: 0 auto;
-  padding: clamp(0.65rem, 1.6vh, 0.95rem) clamp(0.8rem, 1.8vw, 1.15rem);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: clamp(0.65rem, 1.5vw, 1rem);
+  width: 100%;
+  margin: clamp(0.2rem, 0.9vh, 0.45rem) 0 0;
+  padding: clamp(0.7rem, 1.55vh, 1rem) clamp(0.75rem, 1.45vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(0.55rem, 1.35vh, 0.85rem);
   border: 1px solid color-mix(in srgb, #c2a35a 34%, transparent);
   border-radius: 0.45rem;
   background: color-mix(in srgb, #1a1a1a 84%, #0f0e0d);
@@ -692,7 +697,7 @@ body {
 .piece-feedback__text {
   margin: 0;
   color: var(--text);
-  font-size: clamp(0.86rem, 1.55vw, 1rem);
+  font-size: clamp(0.82rem, 3.75cqi, 1rem);
   line-height: 1.45;
   text-align: left;
 }
@@ -704,7 +709,7 @@ body {
   background: transparent;
   color: var(--gold);
   font: inherit;
-  font-size: clamp(0.72rem, 1.4vw, 0.86rem);
+  font-size: clamp(0.72rem, 3.35cqi, 0.86rem);
   font-weight: 700;
   line-height: 1.1;
   cursor: pointer;
@@ -713,16 +718,6 @@ body {
 
 .piece-feedback__skip:hover {
   background: color-mix(in srgb, #c2a35a 12%, transparent);
-}
-
-@media (max-width: 46rem) {
-  .piece-feedback {
-    grid-template-columns: 1fr;
-  }
-
-  .piece-feedback__skip {
-    width: 100%;
-  }
 }
 
 /* Compensazioni leggere per far occupare al puzzle lo slot corrente */

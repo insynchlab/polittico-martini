@@ -212,6 +212,18 @@ function PolitticoGame({ onBack }) {
           <p className="game-hud__status">{statusMessage}</p>
           <p className="game-hud__progress">{lockedPieces.length} / {puzzlePieces.length} pezzi corretti</p>
         </div>
+        {feedback && (
+          <div className="piece-feedback" role="status" aria-live="assertive">
+            <p className="piece-feedback__text">{feedback.text}</p>
+            <button
+              type="button"
+              className="piece-feedback__skip"
+              onClick={finishFeedback}
+            >
+              Salta / Continua
+            </button>
+          </div>
+        )}
         <button
           type="button"
           className="game-hud__back"
@@ -265,18 +277,6 @@ function PolitticoGame({ onBack }) {
             })}
           </div>
         </div>
-        {feedback && (
-          <div className="piece-feedback" role="status" aria-live="assertive">
-            <p className="piece-feedback__text">{feedback.text}</p>
-            <button
-              type="button"
-              className="piece-feedback__skip"
-              onClick={finishFeedback}
-            >
-              Salta / Continua
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )
