@@ -49,6 +49,13 @@ function isViewportPortrait() {
   return width < height
 }
 
+function supportsForcedLandscapeFallback() {
+  const iOSPlatform = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
+  const iPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+
+  return iOSPlatform || iPadOSDesktopMode
+}
+
 function getSlotClass(piece, slotIndex) {
   const visualIndex = piece.zone === 'upper' ? slotIndex + 1 : slotIndex + 8
   return `polyptych-piece--${visualIndex}`
@@ -182,11 +189,19 @@ export default function App() {
     () => typeof window !== 'undefined' && isViewportPortrait(),
   )
   const [forceLandscape, setForceLandscape] = useState(false)
+  const [canForceLandscape] = useState(
+    () => typeof navigator !== 'undefined' && supportsForcedLandscapeFallback(),
+  )
+  const forcedLandscapeActive = forceLandscape && canForceLandscape
 
   useEffect(() => {
     if (screen !== 'experience') return
 
-    const update = () => setIsPortrait(isViewportPortrait())
+    const update = () => {
+      const nextIsPortrait = isViewportPortrait()
+      setIsPortrait(nextIsPortrait)
+      if (!nextIsPortrait) setForceLandscape(false)
+    }
     const updateAfterViewportSettles = () => {
       update()
       requestAnimationFrame(update)
@@ -212,7 +227,7 @@ export default function App() {
     }
   }, [screen])
 
-  if (screen === 'experience' && isPortrait && !forceLandscape) {
+  if (screen === 'experience' && isPortrait && !forcedLandscapeActive) {
     return (
       <div className="app app--experience app--experience--portrait">
         <header className="experience-bar">
@@ -234,21 +249,23 @@ export default function App() {
           <span className="experience-portrait__icon" aria-hidden="true" title="Ruota in orizzontale">
             ↻
           </span>
-          <button
-            type="button"
-            className="btn btn--secondary experience-portrait__continue"
-            onClick={() => setForceLandscape(true)}
-          >
-            Ho ruotato, continua
-          </button>
+          {canForceLandscape && (
+            <button
+              type="button"
+              className="btn btn--secondary experience-portrait__continue"
+              onClick={() => setForceLandscape(true)}
+            >
+              Ho ruotato, continua
+            </button>
+          )}
         </div>
       </div>
     )
   }
 
-  if (screen === 'experience' && (!isPortrait || forceLandscape)) {
+  if (screen === 'experience' && (!isPortrait || forcedLandscapeActive)) {
     return (
-      <div className={`app app--experience app--experience--landscape${forceLandscape ? ' app--experience--forced-landscape' : ''}`}>
+      <div className={`app app--experience app--experience--landscape${forcedLandscapeActive ? ' app--experience--forced-landscape' : ''}`}>
         <div className="app__content app__content--column app__content--experience-wide">
           <PolitticoGame onBack={() => {
             setForceLandscape(false)
