@@ -526,7 +526,28 @@ body {
   cursor: pointer;
 }
 
+.game-hud__music {
+  margin: clamp(0.15rem, 0.7vh, 0.35rem) 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: clamp(0.68rem, 3.3cqi, 0.82rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 .game-hud__back:hover {
+  color: var(--gold);
+}
+
+.game-hud__music:hover,
+.game-hud__music[aria-pressed="true"] {
   color: var(--gold);
 }
 

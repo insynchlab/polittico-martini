@@ -20,6 +20,14 @@ const TARGET_SEQUENCE = [
 ]
 
 const FEEDBACK_FALLBACK_MS = 1800
+const BACKGROUND_MUSIC_SRC = '/ChurchChill.mp3'
+const BACKGROUND_MUSIC_VOLUME = 0.075
+const BACKGROUND_MUSIC_DUCKED_VOLUME = 0.012
+
+function createAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  return AudioContextClass ? new AudioContextClass() : null
+}
 
 function getInitialPositions() {
   return Object.fromEntries(puzzlePieces.map((piece) => [piece.id, piece.currentIndex]))
@@ -77,13 +85,20 @@ function getSlotPiece(piece, slotIndex) {
   ))
 }
 
-function PolitticoGame({ onBack }) {
+function PolitticoGame({
+  onBack,
+  musicEnabled,
+  onToggleMusic,
+  onNarrationStart,
+  onNarrationEnd,
+}) {
   const [positions, setPositions] = useState(getInitialPositions)
   const [lockedPieces, setLockedPieces] = useState([])
   const [targetIndex, setTargetIndex] = useState(0)
   const [statusMessage, setStatusMessage] = useState('Tocca il pezzo richiesto per portarlo nello slot evidenziato.')
   const [feedback, setFeedback] = useState(null)
   const audioRef = useRef(null)
+  const moveAudioContextRef = useRef(null)
   const feedbackTimeoutRef = useRef(null)
   const predellaAudioPlayedRef = useRef(false)
   const activeTargetId = TARGET_SEQUENCE[targetIndex]
@@ -106,15 +121,91 @@ function PolitticoGame({ onBack }) {
     audioRef.current = null
   }
 
+  const playMoveSound = () => {
+    if (typeof window === 'undefined') return
+
+    const audioContext = moveAudioContextRef.current || createAudioContext()
+    if (!audioContext) return
+
+    moveAudioContextRef.current = audioContext
+
+    if (audioContext.state === 'suspended') {
+      audioContext.resume().catch(() => {})
+    }
+
+    const now = audioContext.currentTime
+    const master = audioContext.createGain()
+    master.gain.setValueAtTime(0.72, now)
+    master.connect(audioContext.destination)
+
+    const woodBody = audioContext.createOscillator()
+    const woodBodyGain = audioContext.createGain()
+    const woodBodyFilter = audioContext.createBiquadFilter()
+    woodBody.type = 'triangle'
+    woodBody.frequency.setValueAtTime(210, now)
+    woodBody.frequency.exponentialRampToValueAtTime(128, now + 0.08)
+    woodBodyFilter.type = 'bandpass'
+    woodBodyFilter.frequency.setValueAtTime(520, now)
+    woodBodyFilter.Q.setValueAtTime(1.1, now)
+    woodBodyGain.gain.setValueAtTime(0.0001, now)
+    woodBodyGain.gain.exponentialRampToValueAtTime(0.13, now + 0.006)
+    woodBodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13)
+    woodBody.connect(woodBodyFilter).connect(woodBodyGain).connect(master)
+    woodBody.start(now)
+    woodBody.stop(now + 0.15)
+
+    const metalFilter = audioContext.createBiquadFilter()
+    const metalGain = audioContext.createGain()
+    metalFilter.type = 'bandpass'
+    metalFilter.frequency.setValueAtTime(1750, now)
+    metalFilter.Q.setValueAtTime(4.4, now)
+    metalGain.gain.setValueAtTime(0.0001, now)
+    metalGain.gain.exponentialRampToValueAtTime(0.032, now + 0.01)
+    metalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18)
+    metalFilter.connect(metalGain).connect(master)
+
+    ;[587, 845].forEach((frequency) => {
+      const overtone = audioContext.createOscillator()
+      overtone.type = 'triangle'
+      overtone.frequency.setValueAtTime(frequency, now)
+      overtone.connect(metalFilter)
+      overtone.start(now)
+      overtone.stop(now + 0.2)
+    })
+
+    const noiseLength = Math.floor(audioContext.sampleRate * 0.035)
+    const noiseBuffer = audioContext.createBuffer(1, noiseLength, audioContext.sampleRate)
+    const noiseData = noiseBuffer.getChannelData(0)
+    for (let index = 0; index < noiseLength; index += 1) {
+      noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseLength)
+    }
+
+    const noise = audioContext.createBufferSource()
+    const noiseFilter = audioContext.createBiquadFilter()
+    const noiseGain = audioContext.createGain()
+    noise.buffer = noiseBuffer
+    noiseFilter.type = 'bandpass'
+    noiseFilter.frequency.setValueAtTime(1150, now)
+    noiseFilter.Q.setValueAtTime(1.35, now)
+    noiseGain.gain.setValueAtTime(0.0001, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.04, now + 0.002)
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045)
+    noise.connect(noiseFilter).connect(noiseGain).connect(master)
+    noise.start(now)
+    noise.stop(now + 0.05)
+  }
+
   const finishFeedback = () => {
     clearFeedbackTimer()
     stopCurrentAudio()
     setFeedback(null)
+    onNarrationEnd()
   }
 
   const startFeedback = (piece) => {
     clearFeedbackTimer()
     stopCurrentAudio()
+    onNarrationStart()
 
     const isPredellaFeedback = piece.zone === 'predella'
     const shouldPlayAudio = !isPredellaFeedback || !predellaAudioPlayedRef.current
@@ -150,6 +241,7 @@ function PolitticoGame({ onBack }) {
   useEffect(() => () => {
     clearFeedbackTimer()
     stopCurrentAudio()
+    moveAudioContextRef.current?.close()
   }, [])
 
   const handlePiecePress = (piece) => {
@@ -184,6 +276,7 @@ function PolitticoGame({ onBack }) {
       [piece.id]: targetSlot,
       [targetSlotPiece.id]: clickedSlot,
     }))
+    playMoveSound()
 
     if (piece.id === activeTarget.id) {
       const nextTargetIndex = targetIndex + 1
@@ -231,6 +324,14 @@ function PolitticoGame({ onBack }) {
               onClick={onBack}
             >
               Torna all'introduzione
+            </button>
+            <button
+              type="button"
+              className="game-hud__music"
+              onClick={onToggleMusic}
+              aria-pressed={musicEnabled}
+            >
+              Musica {musicEnabled ? 'on' : 'off'}
             </button>
           </>
         )}
@@ -294,7 +395,80 @@ export default function App() {
   const [canForceLandscape] = useState(
     () => typeof navigator !== 'undefined' && supportsForcedLandscapeFallback(),
   )
+  const [musicEnabled, setMusicEnabled] = useState(true)
+  const backgroundMusicRef = useRef(null)
   const forcedLandscapeActive = forceLandscape && canForceLandscape
+
+  const getBackgroundMusic = () => {
+    if (typeof window === 'undefined') return null
+
+    if (!backgroundMusicRef.current) {
+      const music = new Audio(BACKGROUND_MUSIC_SRC)
+      music.loop = true
+      music.preload = 'auto'
+      music.volume = BACKGROUND_MUSIC_VOLUME
+      backgroundMusicRef.current = music
+    }
+
+    return backgroundMusicRef.current
+  }
+
+  const playBackgroundMusic = (volume = BACKGROUND_MUSIC_VOLUME) => {
+    const music = getBackgroundMusic()
+    if (!music) return
+
+    music.volume = volume
+    music.play().catch(() => {})
+  }
+
+  const pauseBackgroundMusic = () => {
+    backgroundMusicRef.current?.pause()
+  }
+
+  const duckBackgroundMusic = () => {
+    if (!musicEnabled) return
+
+    const music = getBackgroundMusic()
+    if (!music || music.paused) return
+
+    music.volume = BACKGROUND_MUSIC_DUCKED_VOLUME
+  }
+
+  const restoreBackgroundMusic = () => {
+    if (!musicEnabled) return
+
+    const music = getBackgroundMusic()
+    if (!music) return
+
+    music.volume = BACKGROUND_MUSIC_VOLUME
+    if (screen === 'experience') {
+      music.play().catch(() => {})
+    }
+  }
+
+  const stopExperience = () => {
+    setForceLandscape(false)
+    setScreen('intro')
+    pauseBackgroundMusic()
+  }
+
+  const startExperience = () => {
+    setForceLandscape(false)
+    setIsPortrait(isViewportPortrait())
+    setScreen('experience')
+    if (musicEnabled) playBackgroundMusic()
+  }
+
+  const toggleBackgroundMusic = () => {
+    const nextMusicEnabled = !musicEnabled
+    setMusicEnabled(nextMusicEnabled)
+
+    if (nextMusicEnabled) {
+      playBackgroundMusic()
+    } else {
+      pauseBackgroundMusic()
+    }
+  }
 
   useEffect(() => {
     if (screen !== 'experience') return
@@ -336,10 +510,7 @@ export default function App() {
           <button
             type="button"
             className="btn btn--secondary"
-            onClick={() => {
-              setForceLandscape(false)
-              setScreen('intro')
-            }}
+            onClick={stopExperience}
           >
             Torna all’introduzione
           </button>
@@ -369,10 +540,12 @@ export default function App() {
     return (
       <div className={`app app--experience app--experience--landscape${forcedLandscapeActive ? ' app--experience--forced-landscape' : ''}`}>
         <div className="app__content app__content--column app__content--experience-wide">
-          <PolitticoGame onBack={() => {
-            setForceLandscape(false)
-            setScreen('intro')
-          }}
+          <PolitticoGame
+            onBack={stopExperience}
+            musicEnabled={musicEnabled}
+            onToggleMusic={toggleBackgroundMusic}
+            onNarrationStart={duckBackgroundMusic}
+            onNarrationEnd={restoreBackgroundMusic}
           />
         </div>
       </div>
@@ -407,11 +580,7 @@ export default function App() {
           <button
             type="button"
             className="btn btn--primary"
-            onClick={() => {
-              setForceLandscape(false)
-              setIsPortrait(isViewportPortrait())
-              setScreen('experience')
-            }}
+            onClick={startExperience}
           >
             Inizia l’esperienza
           </button>
