@@ -24,21 +24,24 @@ function getInitialPositions() {
 }
 
 function getViewportSize() {
-  const width = Math.max(
-    window.visualViewport?.width ?? 0,
-    window.innerWidth,
-    document.documentElement.clientWidth,
-  )
-  const height = Math.max(
-    window.visualViewport?.height ?? 0,
-    window.innerHeight,
-    document.documentElement.clientHeight,
-  )
+  if (window.visualViewport?.width && window.visualViewport?.height) {
+    return {
+      width: window.visualViewport.width,
+      height: window.visualViewport.height,
+    }
+  }
+
+  const width = window.innerWidth || document.documentElement.clientWidth
+  const height = window.innerHeight || document.documentElement.clientHeight
 
   return { width, height }
 }
 
 function isViewportPortrait() {
+  const orientationAngle = window.screen?.orientation?.angle ?? window.orientation
+  if (Math.abs(Number(orientationAngle)) === 90) return false
+  if (Math.abs(Number(orientationAngle)) === 0 || Math.abs(Number(orientationAngle)) === 180) return true
+
   if (window.matchMedia?.('(orientation: portrait)').matches) return true
   if (window.matchMedia?.('(orientation: landscape)').matches) return false
 
@@ -227,6 +230,13 @@ export default function App() {
           <span className="experience-portrait__icon" aria-hidden="true" title="Ruota in orizzontale">
             ↻
           </span>
+          <button
+            type="button"
+            className="btn btn--secondary experience-portrait__continue"
+            onClick={() => setIsPortrait(false)}
+          >
+            Ho ruotato, continua
+          </button>
         </div>
       </div>
     )

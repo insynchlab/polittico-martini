@@ -332,6 +332,11 @@ body {
   transition: color var(--transition-soft);
 }
 
+.experience-portrait__continue {
+  width: min(100%, 17rem);
+  margin-top: 0.15rem;
+}
+
 /* Experience: landscape (corpo) */
 .app--experience--landscape .app__content--column {
   align-items: center;
