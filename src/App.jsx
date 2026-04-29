@@ -21,8 +21,8 @@ const TARGET_SEQUENCE = [
 
 const FEEDBACK_FALLBACK_MS = 1800
 const BACKGROUND_MUSIC_SRC = '/ChurchChill.mp3'
-const BACKGROUND_MUSIC_VOLUME = 0.075
-const BACKGROUND_MUSIC_DUCKED_VOLUME = 0.012
+const BACKGROUND_MUSIC_VOLUME = 0.045
+const BACKGROUND_MUSIC_DUCKED_VOLUME = 0.008
 
 function createAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext
@@ -135,8 +135,14 @@ function PolitticoGame({
 
     const now = audioContext.currentTime
     const master = audioContext.createGain()
-    master.gain.setValueAtTime(0.72, now)
-    master.connect(audioContext.destination)
+    const compressor = audioContext.createDynamicsCompressor()
+    master.gain.setValueAtTime(0.95, now)
+    compressor.threshold.setValueAtTime(-18, now)
+    compressor.knee.setValueAtTime(18, now)
+    compressor.ratio.setValueAtTime(8, now)
+    compressor.attack.setValueAtTime(0.002, now)
+    compressor.release.setValueAtTime(0.12, now)
+    master.connect(compressor).connect(audioContext.destination)
 
     const woodBody = audioContext.createOscillator()
     const woodBodyGain = audioContext.createGain()
@@ -148,7 +154,7 @@ function PolitticoGame({
     woodBodyFilter.frequency.setValueAtTime(520, now)
     woodBodyFilter.Q.setValueAtTime(1.1, now)
     woodBodyGain.gain.setValueAtTime(0.0001, now)
-    woodBodyGain.gain.exponentialRampToValueAtTime(0.13, now + 0.006)
+    woodBodyGain.gain.exponentialRampToValueAtTime(0.24, now + 0.006)
     woodBodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13)
     woodBody.connect(woodBodyFilter).connect(woodBodyGain).connect(master)
     woodBody.start(now)
@@ -160,7 +166,7 @@ function PolitticoGame({
     metalFilter.frequency.setValueAtTime(1750, now)
     metalFilter.Q.setValueAtTime(4.4, now)
     metalGain.gain.setValueAtTime(0.0001, now)
-    metalGain.gain.exponentialRampToValueAtTime(0.032, now + 0.01)
+    metalGain.gain.exponentialRampToValueAtTime(0.072, now + 0.01)
     metalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18)
     metalFilter.connect(metalGain).connect(master)
 
@@ -188,7 +194,7 @@ function PolitticoGame({
     noiseFilter.frequency.setValueAtTime(1150, now)
     noiseFilter.Q.setValueAtTime(1.35, now)
     noiseGain.gain.setValueAtTime(0.0001, now)
-    noiseGain.gain.exponentialRampToValueAtTime(0.04, now + 0.002)
+    noiseGain.gain.exponentialRampToValueAtTime(0.085, now + 0.002)
     noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045)
     noise.connect(noiseFilter).connect(noiseGain).connect(master)
     noise.start(now)
