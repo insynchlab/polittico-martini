@@ -181,6 +181,7 @@ export default function App() {
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== 'undefined' && isViewportPortrait(),
   )
+  const [forceLandscape, setForceLandscape] = useState(false)
 
   useEffect(() => {
     if (screen !== 'experience') return
@@ -211,14 +212,17 @@ export default function App() {
     }
   }, [screen])
 
-  if (screen === 'experience' && isPortrait) {
+  if (screen === 'experience' && isPortrait && !forceLandscape) {
     return (
       <div className="app app--experience app--experience--portrait">
         <header className="experience-bar">
           <button
             type="button"
             className="btn btn--secondary"
-            onClick={() => setScreen('intro')}
+            onClick={() => {
+              setForceLandscape(false)
+              setScreen('intro')
+            }}
           >
             Torna all’introduzione
           </button>
@@ -233,7 +237,7 @@ export default function App() {
           <button
             type="button"
             className="btn btn--secondary experience-portrait__continue"
-            onClick={() => setIsPortrait(false)}
+            onClick={() => setForceLandscape(true)}
           >
             Ho ruotato, continua
           </button>
@@ -242,11 +246,15 @@ export default function App() {
     )
   }
 
-  if (screen === 'experience' && !isPortrait) {
+  if (screen === 'experience' && (!isPortrait || forceLandscape)) {
     return (
-      <div className="app app--experience app--experience--landscape">
+      <div className={`app app--experience app--experience--landscape${forceLandscape ? ' app--experience--forced-landscape' : ''}`}>
         <div className="app__content app__content--column app__content--experience-wide">
-          <PolitticoGame onBack={() => setScreen('intro')} />
+          <PolitticoGame onBack={() => {
+            setForceLandscape(false)
+            setScreen('intro')
+          }}
+          />
         </div>
       </div>
     )
@@ -281,6 +289,7 @@ export default function App() {
             type="button"
             className="btn btn--primary"
             onClick={() => {
+              setForceLandscape(false)
               setIsPortrait(isViewportPortrait())
               setScreen('experience')
             }}
