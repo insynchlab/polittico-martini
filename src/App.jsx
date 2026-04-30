@@ -50,8 +50,10 @@ function getViewportSize() {
 function supportsForcedLandscapeFallback() {
   const iOSPlatform = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
   const iPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+  const androidPlatform = navigator.userAgentData?.platform === 'Android'
+  const androidUserAgent = /Android/i.test(navigator.userAgent)
 
-  return iOSPlatform || iPadOSDesktopMode
+  return iOSPlatform || iPadOSDesktopMode || androidPlatform || androidUserAgent
 }
 
 function isViewportPortrait() {
