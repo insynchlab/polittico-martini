@@ -181,6 +181,12 @@ body {
   outline-offset: 3px;
 }
 
+.btn:disabled {
+  cursor: wait;
+  filter: grayscale(0.25);
+  opacity: 0.62;
+}
+
 .btn--secondary {
   width: 100%;
   background: transparent;
@@ -213,6 +219,36 @@ body {
   text-align: center;
   opacity: 0.9;
   transition: opacity var(--transition-soft);
+}
+
+.intro-loader {
+  margin: 0 0 1rem;
+}
+
+.intro-loader__track {
+  height: 0.4rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, #c2a35a 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #0f0e0d 78%, #c2a35a);
+}
+
+.intro-loader__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold-faint), var(--gold));
+  transition: width 0.22s ease;
+}
+
+.intro-loader__text {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 /* Titoli condivisi (serif) */

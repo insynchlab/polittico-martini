@@ -23,6 +23,7 @@ const FEEDBACK_FALLBACK_MS = 1800
 const BACKGROUND_MUSIC_SRC = '/ChurchChill.mp3'
 const BACKGROUND_MUSIC_VOLUME = 0.045
 const BACKGROUND_MUSIC_DUCKED_VOLUME = 0.008
+const EXPERIENCE_ASSET_COUNT = puzzlePieces.length
 
 function createAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext
@@ -31,6 +32,21 @@ function createAudioContext() {
 
 function getInitialPositions() {
   return Object.fromEntries(puzzlePieces.map((piece) => [piece.id, piece.currentIndex]))
+}
+
+function preloadPuzzleImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image()
+    image.decoding = 'async'
+    image.onerror = () => resolve()
+    image.src = src
+
+    if (image.decode) {
+      image.decode().then(resolve).catch(resolve)
+    } else {
+      image.onload = () => resolve()
+    }
+  })
 }
 
 function getViewportSize() {
@@ -418,8 +434,11 @@ export default function App() {
     () => typeof navigator !== 'undefined' && supportsForcedLandscapeFallback(),
   )
   const [musicEnabled, setMusicEnabled] = useState(true)
+  const [loadedExperienceAssets, setLoadedExperienceAssets] = useState(0)
   const backgroundMusicRef = useRef(null)
   const forcedLandscapeActive = forceLandscape && canForceLandscape
+  const experienceReady = loadedExperienceAssets >= EXPERIENCE_ASSET_COUNT
+  const preloadProgress = Math.round((loadedExperienceAssets / EXPERIENCE_ASSET_COUNT) * 100)
 
   const getBackgroundMusic = () => {
     if (typeof window === 'undefined') return null
@@ -492,6 +511,21 @@ export default function App() {
       pauseBackgroundMusic()
     }
   }
+
+  useEffect(() => {
+    let cancelled = false
+
+    puzzlePieces.forEach((piece) => {
+      preloadPuzzleImage(piece.puzzle.src).then(() => {
+        if (cancelled) return
+        setLoadedExperienceAssets((currentCount) => Math.min(currentCount + 1, EXPERIENCE_ASSET_COUNT))
+      })
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (screen !== 'experience') return
@@ -599,13 +633,29 @@ export default function App() {
             <span className="intro__step-copy">Ricomponi l'opera pezzo dopo pezzo</span>
           </li>
         </ol>
+        <div
+          className="intro-loader"
+          aria-label="Caricamento immagini esperienza"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={preloadProgress}
+          role="progressbar"
+        >
+          <div className="intro-loader__track">
+            <div className="intro-loader__bar" style={{ width: `${preloadProgress}%` }} />
+          </div>
+          <p className="intro-loader__text">
+            {experienceReady ? 'Esperienza pronta' : `Preparazione esperienza... ${preloadProgress}%`}
+          </p>
+        </div>
         <div className="app__actions">
           <button
             type="button"
             className="btn btn--primary"
             onClick={startExperience}
+            disabled={!experienceReady}
           >
-            Inizia l’esperienza
+            {experienceReady ? 'Inizia l’esperienza' : 'Caricamento esperienza...'}
           </button>
           <p className="intro__note">Dopo l'avvio, ruota il dispositivo in orizzontale</p>
         </div>
