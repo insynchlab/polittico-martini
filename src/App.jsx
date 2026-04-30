@@ -56,6 +56,20 @@ function supportsForcedLandscapeFallback() {
   return iOSPlatform || iPadOSDesktopMode || androidPlatform || androidUserAgent
 }
 
+function requestAppFullscreen() {
+  if (typeof document === 'undefined') return
+
+  const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
+  if (fullscreenElement) return
+
+  const element = document.documentElement
+  const requestFullscreen = element.requestFullscreen || element.webkitRequestFullscreen
+  if (!requestFullscreen) return
+
+  const fullscreenRequest = requestFullscreen.call(element, { navigationUI: 'hide' })
+  fullscreenRequest?.catch?.(() => {})
+}
+
 function isViewportPortrait() {
   const canUseIOSOrientationAngle = (
     typeof navigator !== 'undefined'
@@ -461,6 +475,7 @@ export default function App() {
   }
 
   const startExperience = () => {
+    requestAppFullscreen()
     setForceLandscape(false)
     setIsPortrait(isViewportPortrait())
     setScreen('experience')
