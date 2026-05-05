@@ -115,9 +115,9 @@ export const puzzlePieces = [
     correctIndex: 6,
     currentIndex: 2,
     puzzle: { src: puzzle7, width: 393, height: 1327 },
-    audio: '/audio/7_santacaterina.mp3',
-    feedbackText: 'Questa figura è Santa Caterina d’Alessandria, principessa, sapiente e martire.',
-    description: 'Questa figura è Santa Caterina d’Alessandria, principessa, sapiente e martire.',
+    audio: '/audio/7_santacaterina_giusto.mp3',
+    feedbackText: 'Questa figura è Santa Caterina d’Alessandria. La corona e il libro richiamano la sua sapienza e la sua origine regale, mentre la palma è simbolo del martirio. A lei è dedicato questo polittico.',
+    description: 'Questa figura è Santa Caterina d’Alessandria. La corona e il libro richiamano la sua sapienza e la sua origine regale, mentre la palma è simbolo del martirio. A lei è dedicato questo polittico.',
   },
   {
     id: 'piece_08',
