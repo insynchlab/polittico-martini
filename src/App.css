@@ -53,6 +53,61 @@ body {
   box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.025) inset;
 }
 
+.language-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+}
+
+.language-toggle__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--gold-faint);
+  border-radius: 999px;
+  background: color-mix(in srgb, #1a1a1a 70%, transparent);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color var(--transition-soft), color var(--transition-soft), background var(--transition-soft);
+}
+
+.language-toggle__flag:hover {
+  border-color: color-mix(in srgb, #c2a35a 70%, #0f0e0d);
+  color: var(--text);
+}
+
+.language-toggle__flag--active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: color-mix(in srgb, #c2a35a 14%, #0f0e0d);
+}
+
+.language-toggle__flag:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.language-toggle__icon {
+  display: inline-flex;
+  width: 1.45rem;
+  height: 1rem;
+  border-radius: 0.15rem;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(15, 14, 13, 0.55);
+}
+
+.language-toggle__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .intro__kicker {
   margin: 0 0 0.85rem;
   color: var(--gold);
@@ -208,6 +263,19 @@ body {
   outline-offset: 3px;
 }
 
+.intro__ios-hint {
+  margin: 0.55rem 0 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, #c2a35a 28%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, #c2a35a 8%, #0f0e0d);
+  color: color-mix(in srgb, #e8e2d3 78%, #0f0e0d);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
 .intro__note {
   margin: 0;
   font-size: 0.68rem;
@@ -219,6 +287,84 @@ body {
   text-align: center;
   opacity: 0.9;
   transition: opacity var(--transition-soft);
+}
+
+/* ——— Crediti / finanziamento (fondo intro) ——— */
+.intro-credits {
+  width: 100%;
+  margin-top: clamp(1.2rem, 4vw, 1.7rem);
+}
+
+.intro-credits__divider {
+  height: 1px;
+  margin-bottom: clamp(1rem, 3.5vw, 1.4rem);
+  background: linear-gradient(90deg, transparent, var(--gold-faint), transparent);
+}
+
+.intro-credits__logos {
+  list-style: none;
+  margin: 0 0 clamp(1rem, 3.5vw, 1.35rem);
+  padding: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 2vw, 0.85rem);
+}
+
+.intro-credits__logos li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.intro-credits__logos img {
+  height: clamp(1.5rem, 6vw, 2.2rem);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* OPA ha un lockup verticale: leggermente piu' alto per restare leggibile */
+.intro-credits__logos li:nth-child(2) img {
+  height: clamp(2.1rem, 8.5vw, 3rem);
+}
+
+.intro-credits__funding {
+  text-align: center;
+}
+
+.intro-credits__lead {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.intro-credits__law {
+  margin: 0.2rem 0 0;
+  color: color-mix(in srgb, #c2a35a 80%, #e8e2d3);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.intro-credits__quote {
+  margin: 0.5rem auto 0;
+  max-width: 34ch;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.intro-credits__ministero {
+  display: block;
+  margin: clamp(0.9rem, 3.2vw, 1.25rem) auto 0;
+  height: clamp(2.6rem, 11vw, 3.4rem);
+  width: auto;
 }
 
 .intro-loader {
@@ -646,6 +792,13 @@ body {
   line-height: 0;
   overflow: visible;
   transition: left 0.32s ease, top 0.32s ease, width 0.32s ease, height 0.32s ease, filter var(--transition-soft);
+  /* Promuove ogni pezzo su un layer GPU dedicato: su iOS/WebKit elimina le
+     discrepanze di rendering durante l'animazione di left/top/width/height.
+     Su Android/desktop e' un semplice hint inerte: nessun cambiamento visivo. */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: left, top, width, height;
 }
 
 .polyptych-piece__img {
@@ -721,6 +874,8 @@ body {
   object-position: bottom center;
   filter: grayscale(1) contrast(0.96) brightness(0.92);
   transition: filter 0.28s ease, transform 0.28s ease;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .polyptych-piece--predella .polyptych-piece__img--puzzle {

@@ -1,6 +1,73 @@
 import { useState, useEffect, useRef } from 'react'
 import { puzzlePieces } from './data/panels'
+import {
+  LANGUAGES,
+  DEFAULT_LANGUAGE,
+  LANGUAGE_STORAGE_KEY,
+  LANGUAGE_LABELS,
+  getUi,
+} from './data/i18n'
 import './App.css'
+
+function getInitialLanguage() {
+  if (typeof window === 'undefined') return DEFAULT_LANGUAGE
+
+  const stored = window.localStorage?.getItem(LANGUAGE_STORAGE_KEY)
+  if (stored && LANGUAGES.includes(stored)) return stored
+
+  const browserLang = navigator.language?.slice(0, 2)
+  if (browserLang && LANGUAGES.includes(browserLang)) return browserLang
+
+  return DEFAULT_LANGUAGE
+}
+
+const FLAGS = {
+  it: (
+    <svg viewBox="0 0 3 2" aria-hidden="true" focusable="false">
+      <rect width="1" height="2" x="0" fill="#009246" />
+      <rect width="1" height="2" x="1" fill="#ffffff" />
+      <rect width="1" height="2" x="2" fill="#ce2b37" />
+    </svg>
+  ),
+  en: (
+    <svg viewBox="0 0 60 30" aria-hidden="true" focusable="false">
+      <clipPath id="flag-en-clip">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+      </clipPath>
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" strokeWidth="6" />
+      <path
+        d="M0,0 L60,30 M60,0 L0,30"
+        clipPath="url(#flag-en-clip)"
+        stroke="#c8102e"
+        strokeWidth="4"
+      />
+      <path d="M30,0 v30 M0,15 h60" stroke="#ffffff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#c8102e" strokeWidth="6" />
+    </svg>
+  ),
+}
+
+function LanguageToggle({ language, onChange, label }) {
+  return (
+    <div className="language-toggle" role="group" aria-label={label}>
+      {LANGUAGES.map((code) => (
+        <button
+          key={code}
+          type="button"
+          className={`language-toggle__flag${language === code ? ' language-toggle__flag--active' : ''}`}
+          onClick={() => onChange(code)}
+          aria-pressed={language === code}
+          aria-label={LANGUAGE_LABELS[code]}
+          title={LANGUAGE_LABELS[code]}
+        >
+          <span className="language-toggle__icon">{FLAGS[code]}</span>
+          <span className="language-toggle__code">{code.toUpperCase()}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 const TARGET_SEQUENCE = [
   'piece_04',
@@ -63,6 +130,22 @@ function getViewportSize() {
   return { width, height }
 }
 
+function shouldShowIOSInstallHint() {
+  if (typeof navigator === 'undefined' || typeof window === 'undefined') return false
+
+  const isIPhoneLike = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
+  const isIPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+  const isIOS = isIPhoneLike || isIPadOSDesktopMode
+  if (!isIOS) return false
+
+  const isStandalone = (
+    window.navigator.standalone === true
+    || window.matchMedia?.('(display-mode: standalone)').matches
+  )
+
+  return !isStandalone
+}
+
 function supportsForcedLandscapeFallback() {
   const iOSPlatform = ['iPhone', 'iPad', 'iPod'].includes(navigator.platform)
   const iPadOSDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
@@ -118,16 +201,18 @@ function getSlotPiece(piece, slotIndex) {
 }
 
 function PolitticoGame({
+  lang,
   onBack,
   musicEnabled,
   onToggleMusic,
   onNarrationStart,
   onNarrationEnd,
 }) {
+  const t = getUi(lang)
   const [positions, setPositions] = useState(getInitialPositions)
   const [lockedPieces, setLockedPieces] = useState([])
   const [targetIndex, setTargetIndex] = useState(0)
-  const [statusMessage, setStatusMessage] = useState('Tocca il pezzo richiesto per portarlo nello slot evidenziato.')
+  const [statusMessage, setStatusMessage] = useState(() => getUi(lang).gameInitialStatus)
   const [feedback, setFeedback] = useState(null)
   const audioRef = useRef(null)
   const moveAudioContextRef = useRef(null)
@@ -252,18 +337,20 @@ function PolitticoGame({
       predellaAudioPlayedRef.current = true
     }
 
+    const pieceAudio = piece.audio?.[lang]
+
     setFeedback({
       pieceId: piece.id,
-      text: piece.feedbackText || piece.description,
+      text: piece.feedbackText[lang],
       isPredella: isPredellaFeedback,
     })
 
-    if (!shouldPlayAudio || !piece.audio) {
+    if (!shouldPlayAudio || !pieceAudio) {
       feedbackTimeoutRef.current = window.setTimeout(finishFeedback, FEEDBACK_FALLBACK_MS)
       return
     }
 
-    const audio = new Audio(piece.audio)
+    const audio = new Audio(pieceAudio)
     audioRef.current = audio
     audio.onended = finishFeedback
     audio.onerror = finishFeedback
@@ -286,14 +373,14 @@ function PolitticoGame({
     if (feedbackActive) return
 
     if (isComplete) {
-      setStatusMessage('Opera ricomposta: tutti i pezzi sono nella posizione corretta.')
+      setStatusMessage(t.statusComplete)
       return
     }
 
     if (lockedPieces.includes(piece.id)) return
 
     if (piece.zone !== activeTarget.zone) {
-      setStatusMessage(`Il target e nella ${activeTarget.zone === 'upper' ? 'riga superiore' : 'predella'}: usa solo quei pezzi.`)
+      setStatusMessage(t.statusWrongZone(activeTarget.zone))
       return
     }
 
@@ -305,7 +392,7 @@ function PolitticoGame({
 
     if (!targetSlotPiece) return
     if (lockedPieces.includes(targetSlotPiece.id)) {
-      setStatusMessage('Questa posizione e gia risolta e non puo essere modificata.')
+      setStatusMessage(t.statusAlreadySolved)
       return
     }
 
@@ -323,12 +410,12 @@ function PolitticoGame({
       setTargetIndex(nextTargetIndex)
       setStatusMessage(
         nextTarget
-          ? `${piece.title} collocato correttamente. Ora cerca ${nextTarget.title}.`
-          : 'Opera ricomposta: tutti i pezzi sono nella posizione corretta.',
+          ? t.statusPlacedNext(piece.title[lang], nextTarget.title[lang])
+          : t.statusComplete,
       )
       startFeedback(piece)
     } else {
-      setStatusMessage(`Questo non e il pezzo richiesto. Continua a cercare ${activeTarget.title}.`)
+      setStatusMessage(t.statusKeepLooking(activeTarget.title[lang]))
     }
   }
 
@@ -343,25 +430,25 @@ function PolitticoGame({
               className="piece-feedback__skip"
               onClick={finishFeedback}
             >
-              Salta / Continua
+              {t.feedbackSkip}
             </button>
           </div>
         ) : (
           <>
             <div className="game-hud__body">
-              <p className="game-hud__eyebrow">Ricostruisci il polittico</p>
+              <p className="game-hud__eyebrow">{t.gameEyebrow}</p>
               <p className="game-hud__target">
-                {isComplete ? 'Completato' : 'Trova:'} <strong>{isComplete ? 'Polittico ricomposto' : activeTarget.title}</strong>
+                {isComplete ? t.gameCompletedLabel : t.gameFind} <strong>{isComplete ? t.gameCompletedStrong : activeTarget.title[lang]}</strong>
               </p>
               <p className="game-hud__status">{statusMessage}</p>
-              <p className="game-hud__progress">{lockedPieces.length} / {puzzlePieces.length} pezzi corretti</p>
+              <p className="game-hud__progress">{t.gameProgress(lockedPieces.length, puzzlePieces.length)}</p>
             </div>
             <button
               type="button"
               className="game-hud__back"
               onClick={onBack}
             >
-              Torna all'introduzione
+              {t.backToIntro}
             </button>
             <button
               type="button"
@@ -369,7 +456,7 @@ function PolitticoGame({
               onClick={onToggleMusic}
               aria-pressed={musicEnabled}
             >
-              Musica {musicEnabled ? 'on' : 'off'}
+              {musicEnabled ? t.musicOn : t.musicOff}
             </button>
           </>
         )}
@@ -378,12 +465,12 @@ function PolitticoGame({
         <div
           className={`polittico-stage${feedback?.isPredella ? ' polittico-stage--predella-feedback' : ''}`}
           id="polittico-stage"
-          aria-label="Area polittico"
+          aria-label={t.ariaPolitticoArea}
           aria-busy={feedbackActive}
         >
           <div
             className="polyptych-layout"
-            aria-label="Polittico con quattordici pezzi puzzle"
+            aria-label={t.ariaPolitticoLayout}
           >
             {!isComplete && !feedbackActive && (
               <div
@@ -404,7 +491,7 @@ function PolitticoGame({
                   className={`polyptych-piece polyptych-piece--puzzle-button polyptych-piece--${piece.row} ${getSlotClass(piece, positions[piece.id])}${solved ? ' polyptych-piece--locked' : ''}${target ? ' polyptych-piece--target' : ''}${feedbackPiece ? ' polyptych-piece--feedback' : ''}`}
                   onClick={() => handlePiecePress(piece)}
                   disabled={solved || feedbackActive}
-                  aria-label={`${piece.title}${target ? ', target attivo' : ''}`}
+                  aria-label={`${piece.title[lang]}${target ? `, ${t.ariaActiveTarget}` : ''}`}
                 >
                   <img
                     className={`polyptych-piece__img polyptych-piece__img--puzzle polyptych-piece__img--slot-${slotVisualIndex}`}
@@ -426,6 +513,8 @@ function PolitticoGame({
 
 export default function App() {
   const [screen, setScreen] = useState('intro')
+  const [language, setLanguage] = useState(getInitialLanguage)
+  const t = getUi(language)
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== 'undefined' && isViewportPortrait(),
   )
@@ -434,11 +523,25 @@ export default function App() {
     () => typeof navigator !== 'undefined' && supportsForcedLandscapeFallback(),
   )
   const [musicEnabled, setMusicEnabled] = useState(true)
+  const [showIOSInstallHint] = useState(shouldShowIOSInstallHint)
   const [loadedExperienceAssets, setLoadedExperienceAssets] = useState(0)
   const backgroundMusicRef = useRef(null)
   const forcedLandscapeActive = forceLandscape && canForceLandscape
   const experienceReady = loadedExperienceAssets >= EXPERIENCE_ASSET_COUNT
   const preloadProgress = Math.round((loadedExperienceAssets / EXPERIENCE_ASSET_COUNT) * 100)
+
+  const changeLanguage = (nextLanguage) => {
+    setLanguage(nextLanguage)
+    if (typeof window !== 'undefined') {
+      window.localStorage?.setItem(LANGUAGE_STORAGE_KEY, nextLanguage)
+    }
+  }
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language
+    }
+  }, [language])
 
   const getBackgroundMusic = () => {
     if (typeof window === 'undefined') return null
@@ -569,14 +672,14 @@ export default function App() {
             className="btn btn--secondary"
             onClick={stopExperience}
           >
-            Torna all’introduzione
+            {t.backToIntro}
           </button>
         </header>
         <div className="experience-portrait__inner">
           <p className="experience-portrait__message" role="status">
-            Ruota il dispositivo in orizzontale per continuare
+            {t.rotateMessage}
           </p>
-          <span className="experience-portrait__icon" aria-hidden="true" title="Ruota in orizzontale">
+          <span className="experience-portrait__icon" aria-hidden="true" title={t.rotateIconTitle}>
             ↻
           </span>
           {canForceLandscape && (
@@ -585,7 +688,7 @@ export default function App() {
               className="btn btn--secondary experience-portrait__continue"
               onClick={() => setForceLandscape(true)}
             >
-              Ho ruotato, continua
+              {t.rotatedContinue}
             </button>
           )}
         </div>
@@ -598,6 +701,7 @@ export default function App() {
       <div className={`app app--experience app--experience--landscape${forcedLandscapeActive ? ' app--experience--forced-landscape' : ''}`}>
         <div className="app__content app__content--column app__content--experience-wide">
           <PolitticoGame
+            lang={language}
             onBack={stopExperience}
             musicEnabled={musicEnabled}
             onToggleMusic={toggleBackgroundMusic}
@@ -612,30 +716,32 @@ export default function App() {
   return (
     <div className="app app--intro">
       <div className="app__content app__content--column">
-        <p className="intro__kicker">Esperienza interattiva</p>
-        <h1 className="app__title">Ricostruisci il Polittico di Santa Caterina</h1>
-        <p className="app__lede">
-          Un'opera smembrata nel tempo torna leggibile attraverso i suoi pannelli,
-          la predella e il ritmo originario della composizione.
-        </p>
+        <LanguageToggle
+          language={language}
+          onChange={changeLanguage}
+          label={t.languageLabel}
+        />
+        <p className="intro__kicker">{t.introKicker}</p>
+        <h1 className="app__title">{t.introTitle}</h1>
+        <p className="app__lede">{t.introLede}</p>
         <div className="intro__divider" aria-hidden="true" />
-        <ol className="intro__steps" aria-label="Come funziona">
+        <ol className="intro__steps" aria-label={t.introStepsLabel}>
           <li className="intro__step">
             <span className="intro__step-index">01</span>
-            <span className="intro__step-copy">Osserva la sagoma del polittico</span>
+            <span className="intro__step-copy">{t.introStep1}</span>
           </li>
           <li className="intro__step">
             <span className="intro__step-index">02</span>
-            <span className="intro__step-copy">Trova il pannello evidenziato</span>
+            <span className="intro__step-copy">{t.introStep2}</span>
           </li>
           <li className="intro__step">
             <span className="intro__step-index">03</span>
-            <span className="intro__step-copy">Ricomponi l'opera pezzo dopo pezzo</span>
+            <span className="intro__step-copy">{t.introStep3}</span>
           </li>
         </ol>
         <div
           className="intro-loader"
-          aria-label="Caricamento immagini esperienza"
+          aria-label={t.loaderLabel}
           aria-valuemin="0"
           aria-valuemax="100"
           aria-valuenow={preloadProgress}
@@ -645,7 +751,7 @@ export default function App() {
             <div className="intro-loader__bar" style={{ width: `${preloadProgress}%` }} />
           </div>
           <p className="intro-loader__text">
-            {experienceReady ? 'Esperienza pronta' : `Preparazione esperienza... ${preloadProgress}%`}
+            {experienceReady ? t.loaderReady : t.loaderPreparing(preloadProgress)}
           </p>
         </div>
         <div className="app__actions">
@@ -655,10 +761,47 @@ export default function App() {
             onClick={startExperience}
             disabled={!experienceReady}
           >
-            {experienceReady ? 'Inizia l’esperienza' : 'Caricamento esperienza...'}
+            {experienceReady ? t.ctaReady : t.ctaLoading}
           </button>
-          <p className="intro__note">Dopo l'avvio, ruota il dispositivo in orizzontale</p>
+          <p className="intro__note">{t.introNote}</p>
+          {showIOSInstallHint && (
+            <p className="intro__ios-hint">{t.iosFullscreenHint}</p>
+          )}
         </div>
+
+        <footer className="intro-credits">
+          <div className="intro-credits__divider" aria-hidden="true" />
+          <ul className="intro-credits__logos" aria-label="Enti promotori">
+            <li>
+              <img src="/loghi/comune.png" alt="Comune di Pisa" loading="lazy" />
+            </li>
+            <li>
+              <img src="/loghi/opa.png" alt="Opera della Primaziale Pisana" loading="lazy" />
+            </li>
+            <li>
+              <img src="/loghi/musei_nazionali.png" alt="Musei Nazionali di Pisa" loading="lazy" />
+            </li>
+            <li>
+              <img src="/loghi/pisa_turismo.png" alt="Pisa is Turismo" loading="lazy" />
+            </li>
+          </ul>
+          <div className="intro-credits__funding">
+            <p className="intro-credits__lead">Progetto finanziato a valere sui fondi</p>
+            <p className="intro-credits__law">Legge 20 febbraio 2006, n. 77</p>
+            <p className="intro-credits__quote">
+              “Misure speciali di tutela e fruizione dei siti e degli elementi
+              italiani di interesse culturale, paesaggistico e ambientale, inseriti
+              nella “lista del patrimonio mondiale” posti sotto la tutela
+              dell’UNESCO”
+            </p>
+            <img
+              className="intro-credits__ministero"
+              src="/loghi/ministero.png"
+              alt="Ministero della Cultura"
+              loading="lazy"
+            />
+          </div>
+        </footer>
       </div>
     </div>
   )
