@@ -817,16 +817,16 @@ body {
   cursor: wait;
 }
 
-/* Feedback di pressione/hover applicato all'IMMAGINE (gia' su un layer per via
-   del filtro grayscale): cambiarne il valore non crea/distrugge layer, quindi su
-   iOS non provoca lo snap di subpixel che spostava i pezzi al tocco.
-   Niente filtro sul pulsante, che invece promuoveva/spostava il layer. */
-.polyptych-piece--puzzle-button:not(.polyptych-piece--locked):hover .polyptych-piece__img--puzzle {
-  filter: grayscale(1) contrast(0.96) brightness(1);
-}
-
-.polyptych-piece--puzzle-button:not(.polyptych-piece--locked):active .polyptych-piece__img--puzzle {
-  filter: grayscale(0.92) contrast(0.96) brightness(0.82);
+/* IMPORTANTE iOS: su touch NON applichiamo alcun effetto al tocco.
+   Safari iOS lascia lo :hover "appiccicato" dopo il tap finche' non si tocca
+   altrove; qualunque effetto (anche solo ri-renderizzare il filtro) fa
+   ri-arrotondare di un subpixel la posizione del pezzo (misure in %) e lo
+   spostava in alto. L'hover e' quindi confinato ai dispositivi con puntatore
+   reale (desktop), dove non c'e' snap di subpixel. Nessun :active sui pezzi. */
+@media (hover: hover) and (pointer: fine) {
+  .polyptych-piece--puzzle-button:not(.polyptych-piece--locked):hover .polyptych-piece__img--puzzle {
+    filter: grayscale(1) contrast(0.96) brightness(1.02);
+  }
 }
 
 .polyptych-piece--puzzle-button:focus-visible {
