@@ -351,7 +351,7 @@ In fondo all'intro c'è la sezione crediti (`<footer className="intro-credits">`
 
 - Riga unica con 4 loghi: Comune di Pisa, OPA, Musei Nazionali di Pisa, Pisa is Turismo.
 - Dicitura: "Progetto finanziato a valere sui fondi" / **Legge 20 febbraio 2006, n. 77** / citazione UNESCO (corsivo). Resta in italiano anche con UI in inglese (citazione di legge).
-- Logo **Ministero della Cultura** centrato in basso.
+- Blocco finanziamento: testo (lead + legge + citazione) e logo **Ministero della Cultura** **affiancati sulla stessa riga** (`.intro-credits__funding` è `display:flex; flex-wrap:nowrap`; testo a sinistra `flex:1 1 auto; min-width:0`, logo a destra `flex:0 0 auto`). Testo e logo rimpiccioliti (quote ~0.48rem, logo `clamp(1.4rem,5.5vw,2rem)`).
 
 Note sui file loghi:
 

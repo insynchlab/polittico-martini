@@ -811,14 +811,16 @@ export default function App() {
             </li>
           </ul>
           <div className="intro-credits__funding">
-            <p className="intro-credits__lead">Progetto finanziato a valere sui fondi</p>
-            <p className="intro-credits__law">Legge 20 febbraio 2006, n. 77</p>
-            <p className="intro-credits__quote">
-              “Misure speciali di tutela e fruizione dei siti e degli elementi
-              italiani di interesse culturale, paesaggistico e ambientale, inseriti
-              nella “lista del patrimonio mondiale” posti sotto la tutela
-              dell’UNESCO”
-            </p>
+            <div className="intro-credits__funding-text">
+              <p className="intro-credits__lead">Progetto finanziato a valere sui fondi</p>
+              <p className="intro-credits__law">Legge 20 febbraio 2006, n. 77</p>
+              <p className="intro-credits__quote">
+                “Misure speciali di tutela e fruizione dei siti e degli elementi
+                italiani di interesse culturale, paesaggistico e ambientale, inseriti
+                nella “lista del patrimonio mondiale” posti sotto la tutela
+                dell’UNESCO”
+              </p>
+            </div>
             <img
               className="intro-credits__ministero"
               src="/loghi/ministero.png"
