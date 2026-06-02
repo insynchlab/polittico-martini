@@ -327,7 +327,9 @@ Prova schiacciante (misurata): dopo il tocco `piece.offsetTop` resta `0` e `getC
 
 SOLUZIONE DEFINITIVA (minima, una riga):
 
-- `.polyptych-layout { overflow: clip }` invece di `overflow: hidden`. `clip` taglia identico ma NON crea un contenitore scrollabile, quindi il focus non può scrollarlo. Verificato in WebKit: shift dopo il tocco = 0 e il click continua a funzionare. Nessuna modifica a griglia/HUD → nessun rischio per i layout forzato/Windows. (`overflow: clip` = Safari 16+.)
+- `.polyptych-layout { overflow: clip }` invece di `overflow: hidden`. `clip` taglia identico ma NON crea un contenitore scrollabile, quindi il focus non può scrollarlo. Verificato in WebKit: shift dopo il tocco = 0 e il click continua a funzionare. (`overflow: clip` = Safari 16+.)
+- Sul vero iPhone il fix sul solo `.polyptych-layout` NON bastava: il focus-scroll saliva al contenitore scrollabile successivo. Quindi resi `overflow: clip` anche `.app--experience--landscape` e `.app--experience--forced-landscape` (erano `hidden` = scrollabili).
+- Rete di sicurezza JS (App.jsx, effetto su `screen==='experience'`): listener in cattura su `scroll` + `focusin` che azzerano `scrollTop/scrollLeft` di qualunque elemento e `window.scrollTo(0,0)`. Annulla qualsiasi scroll-da-focus residuo, su qualunque dispositivo.
 
 Modifiche di contorno mantenute (corrette ma NON risolutive da sole):
 

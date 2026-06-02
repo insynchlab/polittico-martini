@@ -667,6 +667,27 @@ export default function App() {
     }
   }, [screen])
 
+  // Rete di sicurezza iOS: durante l'esperienza, il focus su un pezzo puo'
+  // innescare uno scroll "porta in vista" su un contenitore residuo o sulla
+  // finestra, spostando i pezzi in alto. Azzeriamo subito qualunque scroll.
+  useEffect(() => {
+    if (screen !== 'experience') return
+    const killScroll = (event) => {
+      const el = event.target
+      if (el && el.nodeType === 1) {
+        if (el.scrollTop) el.scrollTop = 0
+        if (el.scrollLeft) el.scrollLeft = 0
+      }
+      if (window.scrollX || window.scrollY) window.scrollTo(0, 0)
+    }
+    window.addEventListener('scroll', killScroll, true)
+    document.addEventListener('focusin', killScroll, true)
+    return () => {
+      window.removeEventListener('scroll', killScroll, true)
+      document.removeEventListener('focusin', killScroll, true)
+    }
+  }, [screen])
+
   if (screen === 'experience' && isPortrait && !forcedLandscapeActive) {
     return (
       <div className="app app--experience app--experience--portrait">
