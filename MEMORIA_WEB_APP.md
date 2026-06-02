@@ -321,11 +321,16 @@ Cosa NON fare (regressioni già viste):
 
 - NON usare `transform: translateZ(0)` / `will-change` / `backface-visibility` sui pezzi: promuovono un layer permanente che fa lo snap di subpixel in modo stabile (spostamento permanente).
 
+Causa precisa (sticky :hover di iOS):
+
+- Su Safari iOS, dopo il tap lo stato `:hover` resta applicato all'elemento finché non si tocca altrove (per questo il pezzo "ci rimane" e "torna a posto" toccandone un altro).
+- Qualunque effetto in `:hover`/`:active` (anche solo ri-renderizzare un `filter`) fa ri-arrotondare di un subpixel la posizione del pezzo, che ha misure in `%` ed è dentro il contenitore del landscape forzato ruotato con `transform: rotate(90deg)` (sottoalbero rasterizzato in un layer).
+
 Soluzione adottata:
 
-- Nessun `filter` sul **pulsante** del pezzo (`.polyptych-piece--puzzle-button`): era lui a creare/distruggere il layer a ogni `:hover`/`:active`.
-- Il feedback di pressione/hover è spostato sull'**immagine interna** (`.polyptych-piece__img--puzzle`), che ha già un suo layer per via del filtro grayscale: cambiarne solo il valore non crea/distrugge layer, quindi niente snap. Limitato ai pezzi non `--locked`.
+- Sui touch NON si applica alcun effetto al tocco sui pezzi: l'hover è confinato a `@media (hover: hover) and (pointer: fine)` (solo desktop, dove non c'è snap di subpixel) e non esiste più alcuna regola `:active` sui pezzi.
 - Lasciato invariato il bagliore oro del pezzo bloccato/feedback (l'utente ha confermato che quello non dà problemi).
+- Verifica online: il CSS ha hash nel nome (es. `index-fpzyraCr.css`), quindi niente cache HTML vecchia; controllare con `curl https://polittico-martini.pages.dev/ | grep css`.
 
 ---
 
