@@ -526,7 +526,11 @@ export default function App() {
   const [showIOSInstallHint] = useState(shouldShowIOSInstallHint)
   const [loadedExperienceAssets, setLoadedExperienceAssets] = useState(0)
   const backgroundMusicRef = useRef(null)
-  const forcedLandscapeActive = forceLandscape && canForceLandscape
+  // La rotazione CSS forzata vale SOLO finche' il telefono e' fisicamente in
+  // portrait. Appena ruoti davvero il telefono (isPortrait false) si disattiva
+  // all'istante, evitando la "doppia rotazione" (CSS 90deg sommato a quella
+  // fisica) che causava il glitch, senza dipendere dai tempi del reset async.
+  const forcedLandscapeActive = forceLandscape && canForceLandscape && isPortrait
   const experienceReady = loadedExperienceAssets >= EXPERIENCE_ASSET_COUNT
   const preloadProgress = Math.round((loadedExperienceAssets / EXPERIENCE_ASSET_COUNT) * 100)
 

@@ -330,8 +330,11 @@ Indizio decisivo dell'utente: con il tasto "ho ruotato, continua" (landscape for
 
 Causa reale (scroll al focus): il contenitore del landscape **forzato** è `position: fixed; inset: 0; overflow: hidden` → pagina bloccata. Il landscape **naturale** invece era in flusso normale (`min-height: 100dvh`, non fixed): su iOS, al focus del pulsante toccato, Safari faceva un micro-scroll "porta in vista" che spostava il contenuto in alto e ce lo lasciava (toccando un altro pezzo a volte rientrava).
 
+Causa principale del glitch (DOPPIA ROTAZIONE): se l'utente clicca "ho ruotato, continua" (rotazione CSS 90°) e POI gira fisicamente il telefono, lo stato `forceLandscape` restava attivo anche con telefono già in landscape → la rotazione CSS si sommava a quella reale. È in quel momento che compariva l'errore.
+
 Soluzione adottata:
 
+- `forcedLandscapeActive = forceLandscape && canForceLandscape && isPortrait` (App.jsx): la rotazione CSS forzata si disattiva all'istante quando il telefono è fisicamente in landscape, senza dipendere dai tempi del reset async (`setForceLandscape(false)`).
 - `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il landscape forzato): la pagina non può più scrollare, quindi niente spostamento al tocco. NB: in landscape forzato il contenitore ha SIA `app--experience--landscape` SIA `app--experience--forced-landscape`, quindi le due regole convivono (compatibili).
 - NON usare `transform: translateZ(0)` su `.polyptych-layout`: provato e RIMOSSO perché si applica anche al landscape forzato (che condivide la classe) creando un layer annidato dentro il contenitore già ruotato → reintroduceva lo snap proprio nel percorso che funzionava. La sola correzione necessaria è il blocco dello scroll.
 - Sui touch NON si applica alcun effetto al tocco sui pezzi: l'hover è confinato a `@media (hover: hover) and (pointer: fine)` (solo desktop, dove non c'è snap di subpixel) e non esiste più alcuna regola `:active` sui pezzi.
