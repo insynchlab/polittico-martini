@@ -589,6 +589,7 @@ body {
   gap: clamp(0.7rem, 1.7vw, 1.35rem);
 }
 
+
 .app--experience--forced-landscape .game-panel {
   width: calc(100dvh - clamp(0.6rem, 1.8dvh, 1.2rem));
   height: calc(100dvw - clamp(0.6rem, 1.8dvw, 1.2rem));
@@ -767,7 +768,12 @@ body {
   max-height: 100%;
   margin: auto;
   position: relative;
-  overflow: hidden;
+  /* overflow: clip (non 'hidden'): taglia il contenuto che sfora ma NON crea un
+     contenitore scrollabile. Con 'hidden' iOS/WebKit, al focus del pezzo toccato,
+     scrollava internamente il layout di ~15px (i pezzi sforano di pochi px) e i
+     pezzi "saltavano" in alto restandoci. Con 'clip' lo scroll da focus e'
+     impossibile. */
+  overflow: clip;
   line-height: 0;
 }
 

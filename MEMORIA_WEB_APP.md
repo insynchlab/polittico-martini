@@ -321,25 +321,25 @@ Cosa NON fare (regressioni già viste):
 
 - NON usare `transform: translateZ(0)` / `will-change` / `backface-visibility` sui pezzi: promuovono un layer permanente che fa lo snap di subpixel in modo stabile (spostamento permanente).
 
-Causa precisa (sticky :hover di iOS):
+CAUSA REALE (confermata con test Playwright/WebKit + screenshot): `.polyptych-layout` aveva `overflow: hidden`, che lo rende un **contenitore scrollabile**. Le immagini dei pezzi sforano di pochi px (`calc(100% + Npx)`). Al primo tocco il pulsante prende il **focus** e WebKit/iOS fa `scrollIntoView` **scrollando internamente il layout di ~15px** → tutti i pezzi "saltano" in alto e ci restano (toccando un altro pezzo lo scroll cambia e a volte rientra; per questo "la prima volta che li tocco").
 
-- Su Safari iOS, dopo il tap lo stato `:hover` resta applicato all'elemento finché non si tocca altrove (per questo il pezzo "ci rimane" e "torna a posto" toccandone un altro).
-- Qualunque effetto in `:hover`/`:active` (anche solo ri-renderizzare un `filter`) fa ri-arrotondare di un subpixel la posizione del pezzo, che ha misure in `%` ed è dentro il contenitore del landscape forzato ruotato con `transform: rotate(90deg)` (sottoalbero rasterizzato in un layer).
+Prova schiacciante (misurata): dopo il tocco `piece.offsetTop` resta `0` e `getComputedStyle(piece).top` resta `0px` (layout invariato), ma `getBoundingClientRect().top` del pezzo è 15px più in alto del suo offsetParent. La discrepanza tra offsetTop (ignora lo scroll) e getBoundingClientRect (lo include) è spiegabile SOLO da uno scroll interno del contenitore. Nel landscape FORZATO (tutto dentro `rotate(90deg)`) non si vede.
 
-Indizio decisivo dell'utente: con il tasto "ho ruotato, continua" (landscape forzato) il bug NON c'è; appare solo ruotando fisicamente il telefono (layout normale).
+SOLUZIONE DEFINITIVA (minima, una riga):
 
-Causa reale (scroll al focus): il contenitore del landscape **forzato** è `position: fixed; inset: 0; overflow: hidden` → pagina bloccata. Il landscape **naturale** invece era in flusso normale (`min-height: 100dvh`, non fixed): su iOS, al focus del pulsante toccato, Safari faceva un micro-scroll "porta in vista" che spostava il contenuto in alto e ce lo lasciava (toccando un altro pezzo a volte rientrava).
+- `.polyptych-layout { overflow: clip }` invece di `overflow: hidden`. `clip` taglia identico ma NON crea un contenitore scrollabile, quindi il focus non può scrollarlo. Verificato in WebKit: shift dopo il tocco = 0 e il click continua a funzionare. Nessuna modifica a griglia/HUD → nessun rischio per i layout forzato/Windows. (`overflow: clip` = Safari 16+.)
 
-Causa principale del glitch (DOPPIA ROTAZIONE): se l'utente clicca "ho ruotato, continua" (rotazione CSS 90°) e POI gira fisicamente il telefono, lo stato `forceLandscape` restava attivo anche con telefono già in landscape → la rotazione CSS si sommava a quella reale. È in quel momento che compariva l'errore.
+Modifiche di contorno mantenute (corrette ma NON risolutive da sole):
 
-Soluzione adottata:
+- `forcedLandscapeActive = forceLandscape && canForceLandscape && isPortrait` (App.jsx): evita la doppia rotazione quando si gira fisicamente il telefono dopo "ho ruotato, continua".
+- `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il forzato): difesa extra contro lo scroll di pagina; le due classi convivono nel forzato.
+- Hover dei pezzi confinato a `@media (hover: hover) and (pointer: fine)`.
 
-- `forcedLandscapeActive = forceLandscape && canForceLandscape && isPortrait` (App.jsx): la rotazione CSS forzata si disattiva all'istante quando il telefono è fisicamente in landscape, senza dipendere dai tempi del reset async (`setForceLandscape(false)`).
-- `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il landscape forzato): la pagina non può più scrollare, quindi niente spostamento al tocco. NB: in landscape forzato il contenitore ha SIA `app--experience--landscape` SIA `app--experience--forced-landscape`, quindi le due regole convivono (compatibili).
-- NON usare `transform: translateZ(0)` su `.polyptych-layout`: provato e RIMOSSO perché si applica anche al landscape forzato (che condivide la classe) creando un layer annidato dentro il contenitore già ruotato → reintroduceva lo snap proprio nel percorso che funzionava. La sola correzione necessaria è il blocco dello scroll.
-- Sui touch NON si applica alcun effetto al tocco sui pezzi: l'hover è confinato a `@media (hover: hover) and (pointer: fine)` (solo desktop, dove non c'è snap di subpixel) e non esiste più alcuna regola `:active` sui pezzi.
-- Lasciato invariato il bagliore oro del pezzo bloccato/feedback (l'utente ha confermato che quello non dà problemi).
-- Verifica online: il CSS ha hash nel nome (es. `index-fpzyraCr.css`), quindi niente cache HTML vecchia; controllare con `curl https://polittico-martini.pages.dev/ | grep css`.
+Cose da NON rifare (regressioni già viste, costato molto tempo):
+
+- NON `transform: translateZ(0)` / `will-change` sui pezzi NÉ su `.polyptych-layout` condiviso col forzato (crea layer annidati nel contenitore ruotato → snap permanente).
+- NON `onPointerDown={e => e.preventDefault()}` sui pezzi: su WebKit ANNULLA il click (pezzi non più toccabili). Testato.
+- Lasciato invariato il bagliore oro del pezzo bloccato/feedback.
 
 ---
 
