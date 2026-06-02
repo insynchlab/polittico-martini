@@ -332,8 +332,8 @@ Causa reale (scroll al focus): il contenitore del landscape **forzato** è `posi
 
 Soluzione adottata:
 
-- `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il landscape forzato): la pagina non può più scrollare, quindi niente spostamento al tocco.
-- `transform: translateZ(0)` su `.polyptych-layout` (il CONTENITORE della scacchiera, NON i singoli pezzi): stabilizza il compositing come nel landscape forzato. NB: metterlo sui singoli pezzi invece causava uno spostamento permanente (errore già fatto).
+- `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il landscape forzato): la pagina non può più scrollare, quindi niente spostamento al tocco. NB: in landscape forzato il contenitore ha SIA `app--experience--landscape` SIA `app--experience--forced-landscape`, quindi le due regole convivono (compatibili).
+- NON usare `transform: translateZ(0)` su `.polyptych-layout`: provato e RIMOSSO perché si applica anche al landscape forzato (che condivide la classe) creando un layer annidato dentro il contenitore già ruotato → reintroduceva lo snap proprio nel percorso che funzionava. La sola correzione necessaria è il blocco dello scroll.
 - Sui touch NON si applica alcun effetto al tocco sui pezzi: l'hover è confinato a `@media (hover: hover) and (pointer: fine)` (solo desktop, dove non c'è snap di subpixel) e non esiste più alcuna regola `:active` sui pezzi.
 - Lasciato invariato il bagliore oro del pezzo bloccato/feedback (l'utente ha confermato che quello non dà problemi).
 - Verifica online: il CSS ha hash nel nome (es. `index-fpzyraCr.css`), quindi niente cache HTML vecchia; controllare con `curl https://polittico-martini.pages.dev/ | grep css`.
