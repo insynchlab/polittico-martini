@@ -817,12 +817,16 @@ body {
   cursor: wait;
 }
 
-.polyptych-piece--puzzle-button:hover {
-  filter: brightness(1.05);
+/* Feedback di pressione/hover applicato all'IMMAGINE (gia' su un layer per via
+   del filtro grayscale): cambiarne il valore non crea/distrugge layer, quindi su
+   iOS non provoca lo snap di subpixel che spostava i pezzi al tocco.
+   Niente filtro sul pulsante, che invece promuoveva/spostava il layer. */
+.polyptych-piece--puzzle-button:not(.polyptych-piece--locked):hover .polyptych-piece__img--puzzle {
+  filter: grayscale(1) contrast(0.96) brightness(1);
 }
 
-.polyptych-piece--puzzle-button:active {
-  filter: brightness(0.96);
+.polyptych-piece--puzzle-button:not(.polyptych-piece--locked):active .polyptych-piece__img--puzzle {
+  filter: grayscale(0.92) contrast(0.96) brightness(0.82);
 }
 
 .polyptych-piece--puzzle-button:focus-visible {

@@ -313,10 +313,19 @@ L'app è bilingue italiano/inglese.
 - Icone in `public/` (`icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png`), generate da `scripts/generate-icons.mjs` (devDependency `sharp`).
 - Nell'intro, **solo su iPhone non in standalone**, compare un avviso bilingue "Aggiungi a Home per lo schermo intero" (`shouldShowIOSInstallHint`).
 
-### Fix animazioni pezzi su iOS
+### Fix animazioni / spostamento pezzi su iOS
 
-- I pezzi animano `left/top/width/height` (layout-bound): iOS/WebKit le rendeva in modo incoerente.
-- In `.polyptych-piece` aggiunti hint di compositing GPU: `transform: translateZ(0)`, `backface-visibility: hidden`, `will-change`. Inerti su Android/desktop (nessun cambiamento visivo), risolvono le discrepanze su iOS.
+Problema iOS: al tocco i pezzi si spostavano di ~1px verso l'alto (e a volte rientravano toccandone un altro). Causa: su Safari iOS la creazione/distruzione di un **layer composito** ri-arrotonda di un subpixel la posizione di un elemento con `top` in percentuale (frazionario).
+
+Cosa NON fare (regressioni già viste):
+
+- NON usare `transform: translateZ(0)` / `will-change` / `backface-visibility` sui pezzi: promuovono un layer permanente che fa lo snap di subpixel in modo stabile (spostamento permanente).
+
+Soluzione adottata:
+
+- Nessun `filter` sul **pulsante** del pezzo (`.polyptych-piece--puzzle-button`): era lui a creare/distruggere il layer a ogni `:hover`/`:active`.
+- Il feedback di pressione/hover è spostato sull'**immagine interna** (`.polyptych-piece__img--puzzle`), che ha già un suo layer per via del filtro grayscale: cambiarne solo il valore non crea/distrugge layer, quindi niente snap. Limitato ai pezzi non `--locked`.
+- Lasciato invariato il bagliore oro del pezzo bloccato/feedback (l'utente ha confermato che quello non dà problemi).
 
 ---
 
