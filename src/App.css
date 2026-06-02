@@ -459,8 +459,16 @@ body {
 }
 
 .app--experience--landscape {
+  /* iOS: blocchiamo il viewport come nel landscape forzato. In flusso normale
+     Safari iOS, al focus su un pulsante, faceva un micro-scroll della pagina
+     ("porta in vista") che spostava il contenuto in alto e ce lo lasciava.
+     Con position: fixed la pagina non puo' scrollare e il problema sparisce. */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
   overflow: hidden;
-  min-height: 100dvh;
   padding: 0;
   justify-content: center;
 }

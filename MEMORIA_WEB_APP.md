@@ -326,11 +326,14 @@ Causa precisa (sticky :hover di iOS):
 - Su Safari iOS, dopo il tap lo stato `:hover` resta applicato all'elemento finché non si tocca altrove (per questo il pezzo "ci rimane" e "torna a posto" toccandone un altro).
 - Qualunque effetto in `:hover`/`:active` (anche solo ri-renderizzare un `filter`) fa ri-arrotondare di un subpixel la posizione del pezzo, che ha misure in `%` ed è dentro il contenitore del landscape forzato ruotato con `transform: rotate(90deg)` (sottoalbero rasterizzato in un layer).
 
-Indizio decisivo dell'utente: con il tasto "ho ruotato, continua" (landscape forzato via `rotate(90deg)`) il bug NON c'è; appare solo ruotando fisicamente il telefono (layout normale). Differenza: il `rotate(90deg)` promuove tutto in un unico layer composito stabile; il layout normale no.
+Indizio decisivo dell'utente: con il tasto "ho ruotato, continua" (landscape forzato) il bug NON c'è; appare solo ruotando fisicamente il telefono (layout normale).
+
+Causa reale (scroll al focus): il contenitore del landscape **forzato** è `position: fixed; inset: 0; overflow: hidden` → pagina bloccata. Il landscape **naturale** invece era in flusso normale (`min-height: 100dvh`, non fixed): su iOS, al focus del pulsante toccato, Safari faceva un micro-scroll "porta in vista" che spostava il contenuto in alto e ce lo lasciava (toccando un altro pezzo a volte rientrava).
 
 Soluzione adottata:
 
-- `transform: translateZ(0)` su `.polyptych-layout` (il CONTENITORE della scacchiera, NON i singoli pezzi): replica nel landscape fisico la stessa stabilita' di compositing del landscape forzato, così i pezzi non saltano di un subpixel al tocco. NB: metterlo sui singoli pezzi invece causava uno spostamento permanente (errore già fatto).
+- `.app--experience--landscape` reso `position: fixed; inset: 0; height: 100dvh; overflow: hidden` (come il landscape forzato): la pagina non può più scrollare, quindi niente spostamento al tocco.
+- `transform: translateZ(0)` su `.polyptych-layout` (il CONTENITORE della scacchiera, NON i singoli pezzi): stabilizza il compositing come nel landscape forzato. NB: metterlo sui singoli pezzi invece causava uno spostamento permanente (errore già fatto).
 - Sui touch NON si applica alcun effetto al tocco sui pezzi: l'hover è confinato a `@media (hover: hover) and (pointer: fine)` (solo desktop, dove non c'è snap di subpixel) e non esiste più alcuna regola `:active` sui pezzi.
 - Lasciato invariato il bagliore oro del pezzo bloccato/feedback (l'utente ha confermato che quello non dà problemi).
 - Verifica online: il CSS ha hash nel nome (es. `index-fpzyraCr.css`), quindi niente cache HTML vecchia; controllare con `curl https://polittico-martini.pages.dev/ | grep css`.
