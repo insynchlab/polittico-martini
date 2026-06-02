@@ -24,7 +24,7 @@ Non e' pensata come videogioco competitivo: niente punteggio, niente timer, nien
 - CSS custom in `src/App.css` e `src/index.css`
 - Nessuna libreria UI esterna
 - Deploy statico: build Vite in `dist`
-- Config Netlify: `netlify.toml`
+- Hosting: **solo Cloudflare Pages** (Netlify non è più usato)
 - Config Cloudflare Pages: `public/_redirects`
 
 Comandi principali:
@@ -54,9 +54,9 @@ npm run preview
 - `src/main.jsx`
   - Entry point React.
 - `index.html`
-  - HTML base Vite, meta viewport e fallback di caricamento.
-- `netlify.toml`
-  - Build command `npm run build`, publish directory `dist`, redirect SPA su `index.html`.
+  - HTML base Vite, meta viewport, meta PWA/Apple e fallback di caricamento.
+- `public/_redirects`
+  - Fallback SPA per Cloudflare Pages (`/* /index.html 200`).
 
 ---
 
@@ -338,6 +338,8 @@ Note sui file loghi:
 
 ## Deploy, GitHub e Cloudflare
 
+Hosting: **solo Cloudflare Pages**. Netlify non è più usato (rimosso `netlify.toml`).
+
 Repository:
 
 - `https://github.com/insynchlab/polittico-martini.git`
@@ -350,17 +352,16 @@ npm run build
 git add ...
 git commit -m "..."
 git push origin main
+npx wrangler pages deploy dist --project-name=polittico-martini --branch=main
 ```
 
-Se Netlify e' collegato al branch `main`, ogni push dovrebbe far partire il deploy automatico.
-
-Cloudflare Pages e' stato configurato anche senza passare da GitHub, tramite Direct Upload con Wrangler.
+Il deploy su Cloudflare avviene via Direct Upload con Wrangler (vedi sotto). Il push su GitHub serve solo a versionare il codice.
 
 Progetto Cloudflare Pages:
 
 - nome progetto: `polittico-martini`
 - URL pubblica: `https://polittico-martini.pages.dev`
-- ultimo deployment verificato: `https://f111ab76.polittico-martini.pages.dev`
+- ultimo deployment verificato: `https://da378ec6.polittico-martini.pages.dev`
 
 Workflow Cloudflare Direct Upload:
 
@@ -382,19 +383,6 @@ Per il fallback SPA su Cloudflare Pages e' stato aggiunto `public/_redirects`:
 
 ```txt
 /* /index.html 200
-```
-
-Config Netlify:
-
-```toml
-[build]
-  command = "npm run build"
-  publish = "dist"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 ```
 
 Non salvare in memoria token, claim URL, password o credenziali di deploy.
@@ -438,7 +426,7 @@ Non salvare in memoria token, claim URL, password o credenziali di deploy.
   - iPhone Chrome;
   - Android Chrome;
   - Android con blocco rotazione attivo.
-- Verificare con Netlify/GitHub lo stato reale del deploy automatico.
+- Verificare su Cloudflare Pages lo stato reale dei deploy.
 - Eventuale ottimizzazione asset PNG se tempi di preload su rete mobile risultano lunghi.
 
 ---

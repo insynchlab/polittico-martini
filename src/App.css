@@ -792,13 +792,6 @@ body {
   line-height: 0;
   overflow: visible;
   transition: left 0.32s ease, top 0.32s ease, width 0.32s ease, height 0.32s ease, filter var(--transition-soft);
-  /* Promuove ogni pezzo su un layer GPU dedicato: su iOS/WebKit elimina le
-     discrepanze di rendering durante l'animazione di left/top/width/height.
-     Su Android/desktop e' un semplice hint inerte: nessun cambiamento visivo. */
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  will-change: left, top, width, height;
 }
 
 .polyptych-piece__img {
@@ -874,8 +867,6 @@ body {
   object-position: bottom center;
   filter: grayscale(1) contrast(0.96) brightness(0.92);
   transition: filter 0.28s ease, transform 0.28s ease;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 
 .polyptych-piece--predella .polyptych-piece__img--puzzle {
