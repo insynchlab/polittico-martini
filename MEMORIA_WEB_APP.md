@@ -360,7 +360,7 @@ Progetto Cloudflare Pages:
 
 - nome progetto: `polittico-martini`
 - URL pubblica: `https://polittico-martini.pages.dev`
-- ultimo deployment verificato: `https://dfbf77f1.polittico-martini.pages.dev`
+- ultimo deployment verificato: `https://f111ab76.polittico-martini.pages.dev`
 
 Workflow Cloudflare Direct Upload:
 
@@ -403,6 +403,8 @@ Non salvare in memoria token, claim URL, password o credenziali di deploy.
 
 ## Commit recenti rilevanti
 
+- `2fafd5f feat: add English version, PWA support and funding credits`
+  - Versione bilingue IT/EN con bandierine, audio inglesi, PWA + fix iOS, sezione crediti loghi.
 - `04ecf4d fix: show landscape fallback on android`
   - Il bottone `Ho ruotato, continua` ora compare anche su Android.
 - `a1082ac feat: request fullscreen on experience start`
